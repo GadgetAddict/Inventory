@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Category Selections-->
+        <scene sceneID="Pzc-az-BDl">
+            <objects>
+                <tableViewController storyboardIdentifier="CategorySelectionSB" id="hGI-L7-oSY" customClass="CategoryDetailsVC" customModule="Inventory17" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="coA-WR-iKX">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <sections>
+                            <tableViewSection id="v89-wq-UhP">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="7If-Uu-JQk" detailTextLabel="4Vj-ZF-nQN" style="IBUITableViewCellStyleValue1" id="toh-Nm-nPd">
+                                        <rect key="frame" x="0.0" y="35" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="toh-Nm-nPd" id="ZWG-BU-uuj">
+                                            <rect key="frame" x="0.0" y="0.0" width="342" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Category" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="7If-Uu-JQk">
+                                                    <rect key="frame" x="15" y="12" width="67" height="20"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="4Vj-ZF-nQN">
+                                                    <rect key="frame" x="298" y="12" width="42" height="20"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <segue destination="w1g-jX-pyh" kind="show" identifier="showCatList" id="gSJ-Bw-yGe">
+                                                <nil key="action"/>
+                                            </segue>
+                                        </connections>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
+                            <tableViewSection id="CZR-9B-EcD">
+                                <cells>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" textLabel="Nsp-9y-f9c" detailTextLabel="o4T-KY-IAA" style="IBUITableViewCellStyleValue1" id="bVV-ft-2Dx">
+                                        <rect key="frame" x="0.0" y="115" width="375" height="44"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="bVV-ft-2Dx" id="SXE-n3-FLt">
+                                            <rect key="frame" x="0.0" y="0.0" width="342" height="43"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Subcategory" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Nsp-9y-f9c">
+                                                    <rect key="frame" x="15" y="12" width="93" height="20"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="o4T-KY-IAA">
+                                                    <rect key="frame" x="298" y="12" width="42" height="20"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                                    <color key="textColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                        </tableViewCellContentView>
+                                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                        <connections>
+                                            <segue destination="w1g-jX-pyh" kind="show" identifier="showSubcatList" id="68v-9d-ngx"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </cells>
+                            </tableViewSection>
+                        </sections>
+                        <connections>
+                            <outlet property="dataSource" destination="hGI-L7-oSY" id="4Pb-9Y-uv7"/>
+                            <outlet property="delegate" destination="hGI-L7-oSY" id="xnp-Nm-dDS"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Category Selections" id="NBy-IL-uks">
+                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="QoQ-bL-IoS">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <action selector="cancelButtonPressed:" destination="hGI-L7-oSY" id="CCZ-Ld-bdy"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="done" id="3fU-ty-sZt">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <action selector="doneButtonPressed:" destination="hGI-L7-oSY" id="ecM-Hf-08O"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="categoryNameLabel" destination="4Vj-ZF-nQN" id="Unb-tt-cS7"/>
+                        <outlet property="subCcategoryNameLabel" destination="o4T-KY-IAA" id="bWk-fn-ChA"/>
+                        <outlet property="subcategoryTableSection" destination="bVV-ft-2Dx" id="QTb-et-N70"/>
+                        <segue destination="jD3-Jn-xDV" kind="unwind" identifier="unwind_saveCategoryToItemDetails" unwindAction="unwind_saveCategoryToItemDetails:" id="hub-KJ-NQb"/>
+                        <segue destination="jD3-Jn-xDV" kind="unwind" identifier="unwind_CancelToItemDetails" unwindAction="unwind_CancelToItemDetails:" id="5os-cO-Giz"/>
+                        <segue destination="jD3-Jn-xDV" kind="unwind" identifier="unwindCancelToSettings" unwindAction="unwindCancelToSettings:" id="vQM-XU-PXt"/>
+                    </connections>
+                </tableViewController>
+                <exit id="jD3-Jn-xDV" userLabel="Exit" sceneMemberID="exit"/>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="6OS-ZE-uqc" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4137" y="4505"/>
+        </scene>
+        <!--Categories-->
+        <scene sceneID="hj4-kE-sf3">
+            <objects>
+                <tableViewController storyboardIdentifier="CategoryListSB" id="w1g-jX-pyh" customClass="CategoryPicker" customModule="Inventory17" customModuleProvider="target" sceneMemberID="viewController">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="7TR-WC-V7q">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" red="0.93725490570000003" green="0.93725490570000003" blue="0.95686274770000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        <prototypes>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="CategoryPickerCell" id="Pbg-sR-TLv" customClass="CategoryPickerCell" customModule="Inventory17" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Pbg-sR-TLv" id="kEy-NN-gKD">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ujj-FA-1eR">
+                                            <rect key="frame" x="20" y="10" width="335" height="24"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="ujj-FA-1eR" firstAttribute="top" secondItem="kEy-NN-gKD" secondAttribute="topMargin" constant="2" id="6wx-nt-Piv"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="ujj-FA-1eR" secondAttribute="trailing" constant="12" id="FtJ-2a-uCt"/>
+                                        <constraint firstItem="ujj-FA-1eR" firstAttribute="leading" secondItem="kEy-NN-gKD" secondAttribute="leadingMargin" constant="12" id="Jg4-pz-7W4"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="ujj-FA-1eR" secondAttribute="bottom" constant="2" id="Y40-eJ-unA"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="categoryLabel" destination="ujj-FA-1eR" id="nc7-gc-tYf"/>
+                                </connections>
+                            </tableViewCell>
+                        </prototypes>
+                        <connections>
+                            <outlet property="dataSource" destination="w1g-jX-pyh" id="Ant-5j-LPU"/>
+                            <outlet property="delegate" destination="w1g-jX-pyh" id="yVj-qx-UkL"/>
+                        </connections>
+                    </tableView>
+                    <navigationItem key="navigationItem" title="Categories" id="G8O-jH-Zdb">
+                        <barButtonItem key="leftBarButtonItem" systemItem="done" id="sKK-UG-kRL">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <action selector="addNewCategoryWithSender:" destination="w1g-jX-pyh" id="aNn-3J-lLb"/>
+                                <segue destination="WhB-TC-QhH" kind="unwind" unwindAction="unwindCancelCategoryPicker:" id="xG7-zJ-JuV"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="EAD-hZ-Kgj">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <action selector="addNewCategoryWithSender:" destination="w1g-jX-pyh" id="wSn-gL-sge"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <segue destination="WhB-TC-QhH" kind="unwind" identifier="unwindToBoxDetailsWithCategory" unwindAction="unwindToBoxDetailsWithCategory:" id="lPK-rI-CdQ"/>
+                        <segue destination="WhB-TC-QhH" kind="unwind" identifier="unwindWithSelectedCategory" unwindAction="unwindWithSelectedCategory:" id="9v4-pW-31Q"/>
+                    </connections>
+                </tableViewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fET-ii-TbA" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="WhB-TC-QhH" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="4962" y="4505"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="Oqh-1K-pAi">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="EdU-xn-scl" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="6rm-bL-Nk6">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="barTintColor" red="0.24730913639999999" green="0.62189051179999999" blue="0.98411722720000006" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                        <textAttributes key="titleTextAttributes">
+                            <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </textAttributes>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="hGI-L7-oSY" kind="relationship" relationship="rootViewController" id="Y9H-6m-58o"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="fsu-xi-mol" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3279" y="4505"/>
+        </scene>
+    </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="68v-9d-ngx"/>
+    </inferredMetricsTieBreakers>
+</document>
