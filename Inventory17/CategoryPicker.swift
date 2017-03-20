@@ -24,45 +24,87 @@ class CategoryPicker: UITableViewController {
     var categoryIndexPath: NSIndexPath? = nil
     var collectionID: String!
     
+    
+    
+    
+    
     var REF_CATEGORY: FIRDatabaseReference!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        setupPage()
+        
         tableView.tableFooterView = UIView()
         tableView.tableFooterView = UIView(frame: CGRect.zero)
-     
-        if categoryType == .subcategory {
-         self.title = "Subcategories"
-        if categorySelection == .settings {
-            print("categorySelection == .settings")
-
-                tableView.allowsSelection = false
-            }
-        }
-      
-
+    
         
         let defaults = UserDefaults.standard
         
         if (defaults.object(forKey: "CollectionIdRef") != nil) {
-            print("Getting Defaults")
+            print("Category PIcker: Getting Defaults")
             
             if let collectionId = defaults.string(forKey: "CollectionIdRef") {
                 self.collectionID = collectionId
             }
-            
-            
-            
         }
         
         self.REF_CATEGORY = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/categories/\(categoryType.rawValue)")
         
         loadDataFromFirebase()
         
-        // End ViewDidLoad
+    }// End ViewDidLoad
+
+    func setupPage() {
+        
+        
+        switch  categoryType {
+        case .category:
+            self.title = "Categories"
+
+        case .subcategory:
+            self.title = "Subcategories"
+
+            
+        }
+        
+        switch categorySelection {
+
+        case .item:
+         print("This is the ITEMS Category selection")
+        case .box:
+            print("This is the BOX Category selection")
+
+        case .settings:
+            if categoryType == .subcategory {
+                tableView.allowsSelection = false
+            }
+            
+        }
         
     }
+    
+    
+    
+    @IBAction func backButtonTapped(_ sender: UIBarButtonItem) {
+        switch categorySelection {
+        case .item:
+            self.performSegue(withIdentifier: "unwindCancelCategoryPicker", sender: self)
+            
+        case .box:
+            self.performSegue(withIdentifier: "unwindToBoxDetailsCancel", sender: self)
+            
+        case .settings:
+            self.performSegue(withIdentifier: "unwindCancelCategoryPicker", sender: self)
+
+ 
+            
+            
+        }
+
+        
+    }
+    
     
     
     override  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath){
@@ -77,7 +119,7 @@ class CategoryPicker: UITableViewController {
             self.performSegue(withIdentifier: "unwindToBoxDetailsWithCategory", sender: self)
 
         case .settings:
-            self.performSegue(withIdentifier: "unwindCancelToSettings", sender: self)
+            self.performSegue(withIdentifier: "unwindWithSelectedCategory", sender: self)
 
           }
     }
@@ -91,26 +133,27 @@ class CategoryPicker: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        tableView.backgroundView = nil
-        
-        
-        if categories.count > 0 {
-            
-            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
-            return categories.count
-        } else {
-            
-            let emptyStateLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 270, height: 32))
-            emptyStateLabel.font = emptyStateLabel.font.withSize(14)
-            emptyStateLabel.text = "Click the ' + ' button to Choose a Category"
-            emptyStateLabel.textColor = UIColor.lightGray
-            emptyStateLabel.textAlignment = .center;
-            tableView.backgroundView = emptyStateLabel
-            
-            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
-        }
-        
-        return 0
+//        tableView.backgroundView = nil
+//        
+//        
+//        if categories.count > 0 {
+//            
+//            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
+//            return categories.count
+//        } else {
+//            
+//            let emptyStateLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 270, height: 32))
+//            emptyStateLabel.font = emptyStateLabel.font.withSize(14)
+//            emptyStateLabel.text = "Click the ' + ' button to Choose a Category"
+//            emptyStateLabel.textColor = UIColor.lightGray
+//            emptyStateLabel.textAlignment = .center;
+//            tableView.backgroundView = emptyStateLabel
+//            
+//            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
+//        }
+//        
+//        return 0
+        return categories.count
     }
     
     
@@ -206,7 +249,7 @@ class CategoryPicker: UITableViewController {
     
     // Delete Confirmation and Handling
     func confirmDelete(Item: String) {
-        let alert = UIAlertController(title: "Delete Item", message: "Are you sure you want to permanently delete '\(Item)' ?", preferredStyle: .actionSheet)
+        let alert = UIAlertController(title: "Delete \(categoryType.rawValue.capitalized)", message: "Are you sure you want to permanently delete '\(Item)' ?", preferredStyle: .actionSheet)
         
         let DeleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: handleDeleteItem)
         let CancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: cancelDeleteItem)
@@ -275,8 +318,8 @@ class CategoryPicker: UITableViewController {
         
         
         var alertController:UIAlertController?
-        alertController = UIAlertController(title: "New Location \(categoryType.rawValue.capitalized)",
-            message: "Enter the new \(categoryType.rawValue.capitalized)",
+        alertController = UIAlertController(title: "New \(categoryType.rawValue.capitalized)",
+            message: "Enter a name for this new \(categoryType.rawValue.capitalized)",
             preferredStyle: .alert)
         
         alertController!.addTextField(

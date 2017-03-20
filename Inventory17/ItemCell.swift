@@ -9,24 +9,13 @@
 import UIKit
 import Firebase
 
-protocol ButtonCellDelegate {
-    func cellTapped(cell: ItemCell)
-}
-
 
 class ItemCell: UITableViewCell, UINavigationControllerDelegate {
     
     
-    var buttonDelegate: ButtonCellDelegate?
-    @IBOutlet weak var rowLabel: UILabel!
+     @IBOutlet weak var rowLabel: UILabel!
     
-    @IBAction func buttonTap(sender: AnyObject) {
-        if let delegate = buttonDelegate {
-            delegate.cellTapped(cell: self)
-        }
-    }
-    
-    
+       
     var item: Item!
      
     @IBOutlet weak var nameLbl: UILabel!
@@ -51,9 +40,9 @@ class ItemCell: UITableViewCell, UINavigationControllerDelegate {
         imageThumb.clipsToBounds = true
     }
    
-    func configureCell(item: Item, img: UIImage? = nil) {
+    func configureCell(item: Item, img: UIImage?) {
         self.item = item
-        
+ 
         if let qty = item.itemQty {
             self.qty.text = "\(qty)"
         } else {
@@ -61,7 +50,7 @@ class ItemCell: UITableViewCell, UINavigationControllerDelegate {
         }
         
         self.nameLbl.text = item.itemName.capitalized
-        self.categoryLbl.text = "\(item.itemCategory!.capitalized)"
+        self.categoryLbl.text = "\(item.itemCategory!.capitalized):"
         self.subCategoryLbl.text = "\(item.itemSubcategory!.capitalized)"
         if item.itemBoxNum != nil {
          self.boxNumberLbl.text = "Box  \(item.itemBoxNum!)"
@@ -72,38 +61,44 @@ class ItemCell: UITableViewCell, UINavigationControllerDelegate {
 
 //            self.boxNumberScanBtnLbl.setTitle("Add to Box", forState: UIControlState.Normal)
         }
-        
-        
-        
-        if img != nil {
-            self.imageThumb.image = img
-        } else {
-            let ref = FIRStorage.storage().reference(forURL: item.itemImgUrl)
-            ref.data(withMaxSize: 2 * 1024 * 1024, completion: { (data, error) in
-                if error != nil {
-                    print("JESS: Unable to download image from Firebase storage")
-                } else {
-                    print("JESS: Image downloaded from Firebase storage")
-                    if let imgData = data {
-                        if let img = UIImage(data: imgData) {
-                            self.imageThumb.image = img
-                            itemFeedVC.imageCache.setObject(img, forKey: item.itemImgUrl as NSString)
-                        }
-                    }
-                }
-            })
-        }
-        
+ 
         //check if fragile, show image or don't
-        
         if item.itemFragile == false {
             self.imgFragile.isHidden = true
         }else{
             self.imgFragile.isHidden = false
             
-        }//end ifFragile
+        }
+
+        let getImage_QUEUE = DispatchQueue(label: "com.michael.getImagequeue", qos: DispatchQoS.userInteractive     )
+        
+//     getImage_QUEUE.sync {
         
         
+        if img != nil {
+            self.imageThumb.image = img
+ 
+        } else {
+ 
+             getImage_QUEUE.async {
+ 
+                if let URL = item.itemImgUrl {
+            let ref = FIRStorage.storage().reference(forURL: URL)
+            ref.data(withMaxSize: 2 * 1024 * 1024, completion: { (data, error) in
+                if error != nil {
+                    print("MK: Unable to download image from Firebase storage")
+                } else {
+                    print("MK: Image downloaded from Firebase storage")
+                    if let imgData = data {
+                        if let img = UIImage(data: imgData) {
+                            self.imageThumb.image = img
+                            itemFeedVC.imageCache.setObject(img, forKey: URL as NSString)
+                        }
+                    }
+                }
+            })
+            }}
+        }
         
         
     }//ConfigureCell

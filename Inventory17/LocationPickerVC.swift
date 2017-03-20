@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import DZNEmptyDataSet
 
 enum LocationType:String {
         case name
@@ -16,8 +17,9 @@ enum LocationType:String {
     }
 
 
-class LocationPickerVC: UITableViewController {
-    var passedLoc: String!
+class LocationPickerVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+ 
+    var passedLocation: Location!
 
     var selectedLocation: Location!
     var locations = [Location]()
@@ -48,6 +50,7 @@ class LocationPickerVC: UITableViewController {
         }
         
         self.REF_LOCATION = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/locations/\(locationType.rawValue)")
+        
         
         loadDataFromFirebase()
         
@@ -84,25 +87,27 @@ func editButtonPressed(){
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
        
-        tableView.backgroundView = nil
+//        tableView.backgroundView = nil
+//
+//        if locations.count > 0 {
+//            
+//            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
+//            return locations.count
+//        } else {
+//            
+//            let emptyStateLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 270, height: 32))
+//            emptyStateLabel.font = emptyStateLabel.font.withSize(14)
+//            emptyStateLabel.text = "Click the ' + ' button to Create a new Location"
+//            emptyStateLabel.textColor = UIColor.lightGray
+//            emptyStateLabel.textAlignment = .center;
+//            tableView.backgroundView = emptyStateLabel
+//            
+//            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
+//        }
+//        
+//        return 0
 
-        if locations.count > 0 {
-            
-            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
             return locations.count
-        } else {
-            
-            let emptyStateLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 270, height: 32))
-            emptyStateLabel.font = emptyStateLabel.font.withSize(14)
-            emptyStateLabel.text = "Click the ' + ' button to Create a new Location"
-            emptyStateLabel.textColor = UIColor.lightGray
-            emptyStateLabel.textAlignment = .center;
-            tableView.backgroundView = emptyStateLabel
-            
-            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
-        }
-        
-        return 0
     }
    
     
@@ -126,7 +131,53 @@ func editButtonPressed(){
         }
     }
     
+    func image(forEmptyDataSet scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "package")
+    }
     
+    func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "You Have No Locations Saved"
+        let attribs = [
+            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 18),
+            NSForegroundColorAttributeName: UIColor.darkGray
+        ]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    func description(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "Add your first \(locationType.rawValue.capitalized) by tapping the + button."
+        
+        let para = NSMutableParagraphStyle()
+        para.lineBreakMode = NSLineBreakMode.byWordWrapping
+        para.alignment = NSTextAlignment.center
+        
+        let attribs = [
+            NSFontAttributeName: UIFont.systemFont(ofSize: 14),
+            NSForegroundColorAttributeName: UIColor.lightGray,
+            NSParagraphStyleAttributeName: para
+        ]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    func buttonTitle(forEmptyDataSet scrollView: UIScrollView!, for state: UIControlState) -> NSAttributedString! {
+        
+        let text = "Add First Location"
+        let attribs = [
+            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 16),
+            NSForegroundColorAttributeName: view.tintColor
+            ] as [String : Any]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    
+    func emptyDataSetDidTapButton(_ scrollView: UIScrollView!) {
+        print("Empty Did Tap Button")
+    
+    }
+
     
     
     // MARK: UITableViewDelegate Methods
@@ -209,7 +260,7 @@ func editButtonPressed(){
     
     // Delete Confirmation and Handling
     func confirmDelete(Item: String) {
-        print("I'm in confirmDelete")
+//        print("I'm in confirmDelete")
 
         let alert = UIAlertController(title: "Delete Item", message: "Are you sure you want to permanently delete '\(Item)' ?", preferredStyle: .actionSheet)
     
@@ -224,15 +275,14 @@ func editButtonPressed(){
     }
     
     func handleDeleteItem(alertAction: UIAlertAction!) -> Void {
-        print("I'm in handleDeleteItem")
+//        print("I'm in handleDeleteItem")
 
         if let indexPath = locationIndexPath {
-            print("I'm in handleDeleteItem IF index")
 
             tableView.beginUpdates()
             let location  = locations[indexPath.row]
             let locationKey = location.locationKey
-            print("Color Key is \(locationKey)")
+//            print("locationKey is \(locationKey)")
             self.REF_LOCATION.child(locationKey!).removeValue()
             locationIndexPath = nil
             tableView.endUpdates()
@@ -334,14 +384,12 @@ func editButtonPressed(){
         
         let newLocationTrimmed = enteredText.trimmingCharacters(in: NSCharacterSet.whitespaces)
         
-        let location = [locationType.rawValue : newLocationTrimmed]
-        
-        
-//        let REF_LOCATION = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/locations/\(locationType.rawValue)").childByAutoId()
+        let location = [locationType.rawValue : newLocationTrimmed.capitalized]
+ 
         
         REF_LOCATION.childByAutoId().setValue(location)
         
-        //                self.dismiss(animated: true, completion: {})
+   
         
     }
     
@@ -349,28 +397,22 @@ func editButtonPressed(){
 
     func loadDataFromFirebase() {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        
-        
-            switch locationType {
-            case .area:
-                
-                self.REF_LOCATION = self.REF_LOCATION.child("\(passedLoc)")
+       
+        switch locationType {
+        case .area:
+            print("area")
+            self.REF_LOCATION = self.REF_LOCATION.child(passedLocation.locationName!)
 
-               
-                
-            case .detail:
-                self.REF_LOCATION = self.REF_LOCATION.child("\(passedLoc)")
+        case .detail:
+         print("Detail")
+         self.REF_LOCATION = self.REF_LOCATION.child(passedLocation.locationArea!)
 
-                
-            case .name:
-                print("default")
-            }
-        
-     
-        print("REF_LOCATION: \(REF_LOCATION!)")
-
-        
-            //         REF_STATUS.queryOrdered(byChild: "statusName").observe(.value, with: { snapshot in
+        case .name:
+            print("name")
+//            self.REF_LOCATION = self.REF_LOCATION.child(passedLocation.locationName!)
+           
+        }
+         print("REF_LOCATION: \(REF_LOCATION!)")
         
             self.REF_LOCATION.observe(.value, with: { snapshot in
         

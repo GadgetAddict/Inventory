@@ -8,18 +8,16 @@
 
 import UIKit
 import Firebase
+import DZNEmptyDataSet
 
-class BoxItemsVC: UITableViewController, BoxItemsButtonCellDelegate{
-    internal func cellTapped(cell: BoxItemCell) {
-//        self.showAlertForRow(row: tableView.indexPath(for: cell)!.row)
-    }
-
+class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+  
     
   
         var items = [Item]()
-        var boxKey: String!
+        var box: Box!
         var selectedItems = [Item]()
-    //    var colorIndexPath: NSIndexPath? = nil
+        var boxItemIndexPath: NSIndexPath? = nil
         var collectionID: String!
         var REF_ITEMS: FIRDatabaseReference!
  
@@ -38,7 +36,10 @@ class BoxItemsVC: UITableViewController, BoxItemsButtonCellDelegate{
             tableView.tableFooterView = UIView()
             tableView.tableFooterView = UIView(frame: CGRect.zero)
     
-    
+            self.tableView.emptyDataSetSource = self
+            self.tableView.emptyDataSetDelegate = self
+            
+            
             let defaults = UserDefaults.standard
     
             if (defaults.object(forKey: "CollectionIdRef") != nil) {
@@ -62,7 +63,7 @@ class BoxItemsVC: UITableViewController, BoxItemsButtonCellDelegate{
 
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             
-            self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/boxes/\(self.boxKey!)/items")
+            self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/boxes/\(self.box.boxKey!)/items")
 //                  print("REFERENCE: \(myRef)")
        
             //         REF_STATUS.queryOrdered(byChild: "statusName").observe(.value, with: { snapshot in
@@ -93,11 +94,32 @@ class BoxItemsVC: UITableViewController, BoxItemsButtonCellDelegate{
     //MARK: - UITableViewDataSource
     
 
-        override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return items.count
-        }
+//        override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//            return items.count
+//        }
+//    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+                tableView.backgroundView = nil
         
+                if items.count > 0 {
         
+                    self.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
+                    return items.count
+                } else {
+        
+                    let emptyStateLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 270, height: 32))
+                    emptyStateLabel.font = emptyStateLabel.font.withSize(14)
+                    emptyStateLabel.text = "Tap 'Add Items' to fill this box"
+                    emptyStateLabel.textAlignment = .center;
+                    tableView.backgroundView = emptyStateLabel
+        
+                    self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
+                }
+                
+                return 0
+            }
+        
+    
         override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             
             let item = items[indexPath.row]
@@ -112,83 +134,136 @@ class BoxItemsVC: UITableViewController, BoxItemsButtonCellDelegate{
                 }
     
     
+    func image(forEmptyDataSet scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "package")
+    }
+    
+    func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "This Box is Empty"
+        let attribs = [
+            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 18),
+            NSForegroundColorAttributeName: UIColor.darkGray
+        ]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    func description(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "Add Items By Tapping the + Button."
+        
+        let para = NSMutableParagraphStyle()
+        para.lineBreakMode = NSLineBreakMode.byWordWrapping
+        para.alignment = NSTextAlignment.center
+        
+        let attribs = [
+            NSFontAttributeName: UIFont.systemFont(ofSize: 14),
+            NSForegroundColorAttributeName: UIColor.lightGray,
+            NSParagraphStyleAttributeName: para
+        ]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    func buttonTitle(forEmptyDataSet scrollView: UIScrollView!, for state: UIControlState) -> NSAttributedString! {
+        
+        
+        let text = "Add Your First Item"
+        let attribs = [
+            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 16),
+            NSForegroundColorAttributeName: view.tintColor
+            ] as [String : Any]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    
+    func emptyDataSetDidTapButton(_ scrollView: UIScrollView!) {
+        self.performSegue(withIdentifier: "addToBox", sender: self)
+    }
+
+    
+    
+    
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        
+        boxItemIndexPath = indexPath as NSIndexPath?
+        let boxItemToModify  = items[indexPath.row]
+        let itemName = boxItemToModify.itemName
+        //                    let itemKey = itemToModify.itemKey
+        
+        
+        let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "Remove", handler: { (action: UITableViewRowAction, indexPath: IndexPath) -> Void in
+            
+            let alert = UIAlertController(title: "Wait!", message: "Are you sure you want to remove \(itemName) from this box?", preferredStyle: .actionSheet)
+            
+            let DeleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: self.handleDeleteItem)
+            let CancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: self.cancelDeleteItem)
+            
+            alert.addAction(DeleteAction)
+            alert.addAction(CancelAction)
+            
+            
+            self.present(alert, animated: true, completion: nil)
+            
+        })
+        
+        deleteAction.backgroundColor = UIColor.red
+        
+
+        return [deleteAction ]
+        
+    }
+    
+    func handleDeleteItem(alertAction: UIAlertAction!) -> Void {
+        print("IN THE DELETE FUNCTION")
+        if let indexPath = boxItemIndexPath {
+            
+            tableView.beginUpdates()
+            let itemObject  = items[indexPath.row]
+            let itemKey = itemObject.itemKey
+            self.REF_ITEMS.child(itemKey!).removeValue()
+            boxItemIndexPath = nil
+            tableView.endUpdates()
+            
+        }
+    }
+    
+    
+    
+    func cancelDeleteItem(alertAction: UIAlertAction!) {
+        boxItemIndexPath = nil
+    }
     
 
-//        
-//        override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-//            
-//            if let sr = tableView.indexPathsForSelectedRows {
-//                if sr.count == limit {
-//                    let alertController = UIAlertController(title: "Oops", message:
-//                        "You are limited to \(limit) selections", preferredStyle: .alert)
-//                    alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: {action in
-//                    }))
-//                    self.present(alertController, animated: true, completion: nil)
-//                    
-//                    return nil
-//                }
-//            }
-//            
-//            return indexPath
-//        }
-    
-//        override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//            
-//            print("selected  \(items[indexPath.row])")
-//            
-//            if let cell = tableView.cellForRow(at: indexPath) {
-//                if cell.isSelected {
-//                    cell.accessoryType = .checkmark
-//                }
-//            }
-//            
-//            if let sr = tableView.indexPathsForSelectedRows {
-//                print("didDeselectRowAtIndexPath selected rows:\(sr)")
-//            }
-//        }
-//        
-//        override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-//            
-//            print("deselected  \(items[indexPath.row])")
-//            
-//            if let cell = tableView.cellForRow(at: indexPath) {
-//                cell.accessoryType = .none
-//            }
-//            
-//            if let sr = tableView.indexPathsForSelectedRows {
-//                print("didDeselectRowAtIndexPath selected rows:\(sr)")
-//            }
-//        }
-//        
-    
 
 
         override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             print("BoxItems: prepareForSegue ")
             
             if let addItemsVC = segue.destination as? AddItemsToBoxVC {
-                addItemsVC.boxKey = self.boxKey
+                addItemsVC.box = self.box
             }
 
                 
-            if let cell = sender as? UITableViewCell {
-                let indexPath = tableView.indexPath(for: cell)
-                let itemToPass = items[indexPath!.row]
-               
-                    if segue.identifier == "itemDetails_SEGUE" {
-                        print("Box to itemDetails_SEGUE ")
-                        
-                        if let itemDetailVC = segue.destination as? ItemDetails {
-                            itemDetailVC.boxItemKey = itemToPass.itemKey
-                            itemDetailVC.itemType = .boxItem
-                            print("Item to Pass is \(itemToPass.itemName)")
-                            print("Item to Pass is \(itemToPass.itemKey)")
+//            if let cell = sender as? UITableViewCell {
+//                let indexPath = tableView.indexPath(for: cell)
+//                let itemToPass = items[indexPath!.row]
+//               
+//                    if segue.identifier == "itemDetails_SEGUE" {
+//                        print("Box to itemDetails_SEGUE ")
+            
+                        if let addItem = segue.destination as? AddItemsToBoxVC {
+                            addItem.box = self.box
+//                            addItem.boxItemKey = itemToPass.itemKey
+//                            itemDetailVC.itemType = .boxItem
+//                            print("Item to Pass is \(itemToPass.itemName)")
+//                            print("Item to Pass is \(itemToPass.itemKey)")
 
                     }
                     
                 }
-            }
-        }
+    
+    
     
 }  //end of class
 
@@ -268,27 +343,7 @@ class BoxItemsVC: UITableViewController, BoxItemsButtonCellDelegate{
 //        return 1
 //    }
 //    
-//    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        tableView.backgroundView = nil
-//        
-//        if items.count > 0 {
-//            
-//            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
-//            return items.count
-//        } else {
-//            
-//            let emptyStateLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 270, height: 32))
-//            emptyStateLabel.font = emptyStateLabel.font.withSize(14)
-//            emptyStateLabel.text = "There are no items matching this category"
-//            emptyStateLabel.textAlignment = .center;
-//            tableView.backgroundView = emptyStateLabel
-//            
-//            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
-//        }
-//        
-//        return 0
-//    }
-//    
+//
 //    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
 //        
 //        print("selected  \(items[indexPath.row])")

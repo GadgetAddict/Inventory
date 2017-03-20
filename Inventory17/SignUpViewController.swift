@@ -121,11 +121,23 @@ func completeSignIn(id: String, userData: Dictionary<String, String>) {
                                    "collectionId" : newCollectionRef.key]])
     
     
-    DataService.ds.getInventoryReference()
-
-   performSegue(withIdentifier: "SIGNED_UP", sender: nil)
-
+        self.getInventoryReferenceSyncTaskInSerialQueue()
     }
+    
+
+
+
+func getInventoryReferenceSyncTaskInSerialQueue() {
+    let serialQueue = DispatchQueue(label: "com.queue.Serial")
+    
+    serialQueue.sync {
+        DataService.ds.getInventoryReference()
+    }
+    self.performSegue(withIdentifier: "SIGNED_UP", sender:nil)
+    
+}
+
+
 
 
 

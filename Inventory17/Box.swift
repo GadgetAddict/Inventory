@@ -11,17 +11,21 @@ import Firebase
 
 class Box  {
     private var _boxKey: String!
-    private var _boxRef: String!
-    private var _boxNumber: Int?
+    private var _boxNumber: Int!
     private var _boxQRnumber: String?
     private var _boxFragile: Bool!
     private var _boxStackable: Bool!
     private var _boxCategory: String!
     private var _boxName: String?
-    private var _boxLocationName: String!
+    private var _boxLocationName: String?
     private var _boxLocationDetail: String?
     private var _boxLocationArea: String?
     private var _boxStatus: String?
+    private var _boxColor: String?
+   
+    var boxItemCount: Int?
+
+
     
     
     
@@ -32,7 +36,7 @@ class Box  {
     var boxQRnumber: String? {
         return _boxQRnumber
     }
-    var boxNumber:Int? {
+    var boxNumber:Int! {
         return _boxNumber
     }
     
@@ -52,7 +56,7 @@ class Box  {
         return _boxName
     }
     
-    var boxLocationName:String {
+    var boxLocationName:String? {
         return _boxLocationName
     }
     
@@ -68,9 +72,29 @@ class Box  {
         return _boxStatus
     }
     
+    var boxColor:String? {
+        return _boxColor
+    }
+//    var boxItemCount:Int? {
+//        return _boxItemCount
+//    }
+    
+    
+    init(location: String!, area: String?, detail: String?) {
+   
+        self._boxLocationName = location
+        
+        if let locArea = area {
+            self._boxLocationArea = locArea
+        }
+        if let locDetail = detail {
+            self._boxLocationDetail = locDetail
+        }
+        
+    }
  
-        
-        
+    
+    
     
     init(number: String, fragile: Bool, stackable: Bool,  category: String,  description: String, located : String, locDetail: String, locArea : String) {
         self._boxNumber = boxNumber
@@ -126,12 +150,16 @@ class Box  {
             self._boxStatus = status
         }
         
- 
+        if let color = dictionary["color"] as? String {
+            self._boxColor = color
+        }
+        
+       
         
      }
  
 
-  
+     
 //    func getBoxNumber (newBoxCategory:Category ) {
 //        let refBox  = PassKeyData.sharedInstance.REF_BOXES
 //

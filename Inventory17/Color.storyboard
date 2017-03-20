@@ -13,24 +13,24 @@
         <scene sceneID="kEr-W7-Oag">
             <objects>
                 <tableViewController storyboardIdentifier="ColorTable" id="jG1-Zi-ZrI" userLabel="Select Color" customClass="ColorTableVC" customModule="Inventory17" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="TZR-Lm-Z8p">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="55" sectionHeaderHeight="28" sectionFooterHeight="28" id="TZR-Lm-Z8p">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" red="0.9365985577" green="0.9365985577" blue="0.9365985577" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="ColorCell" textLabel="BZk-Yq-zzB" style="IBUITableViewCellStyleDefault" id="U5B-Pg-PYl" userLabel="ColorCell" customClass="ColorCell" customModule="Inventory17" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="28" width="375" height="55"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="U5B-Pg-PYl" id="6O8-8b-kg6">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="54"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="BZk-Yq-zzB">
-                                            <rect key="frame" x="15" y="0.0" width="345" height="43"/>
+                                            <rect key="frame" x="15" y="0.0" width="345" height="54"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                            <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
@@ -56,6 +56,7 @@
                     </navigationItem>
                     <connections>
                         <segue destination="2eJ-eY-454" kind="unwind" identifier="unwind_saveColorToItemDetails" unwindAction="unwind_saveColorToItemDetails:" id="Krh-wW-hUj"/>
+                        <segue destination="2eJ-eY-454" kind="unwind" identifier="unwindToBoxDetailsWithColor" unwindAction="unwindToBoxDetailsWithColor:" id="PZD-Jy-AUg"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="YKk-nO-Xhx" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -66,7 +67,7 @@
         <!--Navigation Controller-->
         <scene sceneID="dMq-9a-FWq">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="1SW-Lu-uh6" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="ColorNavigationSB" automaticallyAdjustsScrollViewInsets="NO" id="1SW-Lu-uh6" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="N0T-qV-SbX" customClass="NavigationBarView" customModule="Inventory17" customModuleProvider="target">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>

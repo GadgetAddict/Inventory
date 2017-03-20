@@ -2,12 +2,11 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "image-background.png",
+      "filename" : "Box Filled_50.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "filename" : "image-background@2x.png",
       "scale" : "2x"
     },
     {

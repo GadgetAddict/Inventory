@@ -25,10 +25,16 @@ enum CategorySelection:String {
 class CategoryDetailsVC: UITableViewController {
     
      
+    
+    @IBOutlet weak var subCatTableCell: UITableViewCell!
+    
     var categoryName:String! {
         didSet {
             categoryNameLabel.text? = categoryName
             self.category = Category(category: categoryName, subcategory: nil)
+            subCatTableCell.isUserInteractionEnabled = true
+            subCcategoryNameLabel.text = "Select"
+            subCatTableCell.isUserInteractionEnabled = true
         }
     }
     var subCategoryName:String = "Not Set" {
@@ -42,19 +48,22 @@ class CategoryDetailsVC: UITableViewController {
     var categorySelectionOption: CategorySelection = .item
     var category:Category?
     
-    @IBOutlet weak var subcategoryTableSection: UITableViewCell!
-    @IBOutlet weak var categoryNameLabel: UILabel!
+     @IBOutlet weak var categoryNameLabel: UILabel!
     @IBOutlet weak var subCcategoryNameLabel: UILabel!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        subCatTableCell.isUserInteractionEnabled = false
+        
         if categorySelectionOption == .settings {
             categoryNameLabel.text = "View"
-            subCcategoryNameLabel.text = "View"
+            subCcategoryNameLabel.text = ""
+
             self.navigationItem.leftBarButtonItem?.tintColor = UIColor.clear
             self.navigationItem.leftBarButtonItem?.isEnabled = false
+            subCatTableCell.isUserInteractionEnabled = false
         }
     }
     
@@ -63,10 +72,14 @@ class CategoryDetailsVC: UITableViewController {
     @IBAction func cancelButtonPressed(_ sender: UIBarButtonItem) {
         print("CANCEL BUTTON PRESSEd")
 
+        if categorySelectionOption == .settings {
         performSegue(withIdentifier: "unwindCancelToSettings", sender: nil)
 
-        
-                }
+        } else {
+            performSegue(withIdentifier: "unwind_CancelToItemDetails", sender: nil)
+  
+        }
+    }
 
     
     @IBAction func doneButtonPressed(_ sender: UIBarButtonItem) {

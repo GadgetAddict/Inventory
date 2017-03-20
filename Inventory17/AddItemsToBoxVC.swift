@@ -14,10 +14,10 @@ class AddItemsToBoxVC: UITableViewController {
     var items = [Item]()
     var selectedItems = [String]()
     var selectedItemKeys = [String]()
-    var boxKey: String!
+     var box: Box!
      var collectionID: String!
     var REF_ITEMS: FIRDatabaseReference!
-
+    var REF_BOX: FIRDatabaseReference!
 
         
     @IBAction func saveButton(_ sender: UIBarButtonItem) {
@@ -57,12 +57,20 @@ class AddItemsToBoxVC: UITableViewController {
         }   // End ViewDidLoad
         
     func saveToFirebase(item: String, key: String) {
-        self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/boxes/\(self.boxKey!)/items/\(key)")
+        self.REF_BOX = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/boxes/\(self.box.boxKey!)/items/itemBoxNum\(key)")
+        
+        self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/items/\(key)/")
+        
+        let boxNumDict: Dictionary<String, String> =
+            ["itemBoxNum" : self.box.boxKey! ]
         
         let itemDict: Dictionary<String, String> =
             ["itemName" : item ]
         
-         self.REF_ITEMS.setValue(itemDict)
+         self.REF_BOX.setValue(itemDict)
+        self.REF_ITEMS.updateChildValues(boxNumDict)
+
+        
         _ = navigationController?.popViewController(animated: true)
 
     }
@@ -72,12 +80,15 @@ class AddItemsToBoxVC: UITableViewController {
         func loadDataFromFirebase() {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             
-            self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/items")
+  
+            self.REF_BOX = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/items")
+            print("self.box.boxCategory: \(self.box.boxCategory!)")
+
+            self.REF_BOX.queryEqual(toValue: self.box.boxCategory! ).observe(.value, with: { snapshot in
+            print("REF_BOX: \(self.REF_BOX)")
+
+//            self.REF_BOX.observe(.value, with: { snapshot in
             
-            //         REF_STATUS.queryOrdered(byChild: "statusName").observe(.value, with: { snapshot in
-            
-            self.REF_ITEMS.observe(.value, with: { snapshot in
-                
                 self.items = []
                 if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot] {
                     for snap in snapshots {

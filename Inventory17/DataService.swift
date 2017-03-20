@@ -36,8 +36,11 @@ class DataService {
     
      var REF_USER_CURRENT: FIRDatabaseReference {
             let userID = FIRAuth.auth()?.currentUser?.uid
-            let userRef = REF_USERS.child(userID!).child("collectionAccess/collectionId")
+        print("DS: USER ID : \(userID)")
         
+            let userRef = REF_USERS.child(userID!).child("collectionAccess/collectionId")
+        print("DS: userREF : \(userRef)")
+
         return userRef
         }
     
@@ -53,33 +56,71 @@ class DataService {
     }
     
     
-    func getInventoryReference()  {
-        print("getInventoryReference")
-
-        DataService.ds.REF_USER_CURRENT.observe(.value, with: {(snapshot)  in
-            print("DataService.GetCollectionRef Snapshot is \(snapshot)")
+    
+    func getInventoryReference() {
+        print("FUNCTION: getInventoryReference")
+//    DispatchQueue.main.sync {
+//        //Stuff Here
+//        print("DS: MAIN QUEUE getInventoryReference")
+//
+//    }
+        
+        DataService.ds.REF_USER_CURRENT.observeSingleEvent(of: .value, with: { snapshot in
+//        DataService.ds.REF_USER_CURRENT.observe(.value, with: {(snapshot)  in
+            print(" DS Snapshot is \(snapshot)")
             if let collectionRefString = snapshot.value as? String {
-                print("Collection ID is \(collectionRefString)")
-                
-                        let defaults = UserDefaults.standard
-                        defaults.set(collectionRefString, forKey: "CollectionIdRef")
+                print(" DS Collection ID is \(collectionRefString)")
 
-                
-                
-                         let REF_COLLECTION_NAME = DataService.ds.REF_BASE.child("/collections/\(collectionRefString)/inventoryName")
+                let defaults = UserDefaults.standard
+                defaults.set(collectionRefString, forKey: "CollectionIdRef")
 
-                        REF_COLLECTION_NAME.observe(.value, with: {(snapshot)  in
-                            if let name = snapshot.value  as? String {
-//                                print("Collection Name is \(name)")
 
-                                defaults.set(name, forKey: "CollectionName")
-                                
-                            }
-                        })
+                let REF_COLLECTION_NAME = DataService.ds.REF_BASE.child("/collections/\(collectionRefString)/inventoryName")
+
+                REF_COLLECTION_NAME.observe(.value, with: {(snapshot)  in
+                    if let name = snapshot.value  as? String {
+                        print("Collection Name is \(name)")
+
+                        defaults.set(name, forKey: "CollectionName")
+                    }
+                })
             }
         })
-          
-    }
+
+}
+    
+////    
+//    func getInventoryReference() {
+//        print("DS: getInventoryReference")
+//        DispatchQueue.main.sync {
+//            //Stuff Here
+//            print("DS: MAIN QUEUE getInventoryReference")
+//
+//        }
+//        REF_USER_CURRENT.observe(.value, with: {(snapshot)  in
+//            print("DataService.GetCollectionRef Snapshot is \(snapshot)")
+//            if let collectionRefString = snapshot.value as? String {
+//                print("DS: Collection ID is \(collectionRefString)")
+//                
+//                        let defaults = UserDefaults.standard
+//                        defaults.set(collectionRefString, forKey: "CollectionIdRef")
+//
+//                
+////                
+////                         let REF_COLLECTION_NAME = DataService.ds.REF_BASE.child("/collections/\(collectionRefString)/inventoryName")
+////
+////                        REF_COLLECTION_NAME.observe(.value, with: {(snapshot)  in
+////                            if let name = snapshot.value  as? String {
+//////                                print("Collection Name is \(name)")
+////
+////                                defaults.set(name, forKey: "CollectionName")
+////                                
+////                            }
+////                        })
+//            }
+//        })
+//  return
+//    }
     
 //    func completeSignIn(id: String, userData: Dictionary<String, String>) {
 //        DataService.ds.createFirbaseDBUser(uid: id, userData: userData)

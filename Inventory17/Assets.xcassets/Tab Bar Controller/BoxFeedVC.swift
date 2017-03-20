@@ -9,6 +9,7 @@
 
 import UIKit
 import Firebase
+import DZNEmptyDataSet
 
 enum BoxLoadType{
         case all
@@ -18,88 +19,106 @@ enum BoxLoadType{
 }
 
 
-class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, BoxButtonCellDelegate{
+class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
+
 
     internal func cellTapped(cell: BoxCell) {
-        self.showAlertForRow(row: tableView.indexPath(for: cell)!.row)
+//        self.showAlertForRow(row: tableView.indexPath(for: cell)!.row)
     }
 
-    var InventoryRefString: String!
+//    lazy var createStartingNumber: Bool = false
     var REF_BOXES: FIRDatabaseReference!
     var boxes = [Box]()
-    var itemIndexPath: NSIndexPath? = nil
+    lazy var itemIndexPath: NSIndexPath? = nil
     var showBoxByCategory: String?
     var boxLoadType: BoxLoadType = .all
     var boxToPass: Box!
+    var itemPassed: Item!
+    var boxesREF: FIRDatabaseQuery?
+    var query = (child: "boxNum", value: "")
     
     
-    
-        
         override func viewDidLoad() {
             super.viewDidLoad()
-            
             
             tableView.delegate = self
             tableView.dataSource = self
             
+            self.tableView.emptyDataSetSource = self
+            self.tableView.emptyDataSetDelegate = self
+
             
             tableView.tableFooterView = UIView()
             tableView.tableFooterView = UIView(frame: CGRect.zero)
              
-        
-            loadBoxes()
-      
-        }
+       
+              loadBoxes()
+    }
     
-  
+   
+ 
+    func gotoSearchPage()  {
+        print("Tapped")
+    }
+ 
     func loadBoxes(){
-        
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+
         let defaults = UserDefaults.standard
         
         if (defaults.object(forKey: "CollectionIdRef") != nil) {
+            
             if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(collectionId)/inventory/boxes")
+                
+                    self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(collectionId)/inventory/boxes")
                 print("Load Collection REF: \(self.REF_BOXES)")
                 
             }
         }
         
         
-        var boxesREF: FIRDatabaseQuery?
  
         switch boxLoadType {
         case .all:
-              boxesREF = (self.REF_BOXES)
-              
-              let qrNavButton = UIImage(named: "qrCodeSet")
-              
-              let leftBarButton = UIBarButtonItem(title: "Edit", style: UIBarButtonItemStyle.done, target: self, action: #selector(qrCodeButtonTapped))
-              leftBarButton.image = qrNavButton
-              
-              self.navigationItem.leftBarButtonItem = leftBarButton
-
-            print("Show all boxes")
+      
+            let addBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 22, height: 22))
+            addBtn.setImage(UIImage(named: "Plus 2 Math_50"), for: UIControlState.normal)
+            let newACtion = "newBox"
+            addBtn.addTarget(self, action: Selector(newACtion), for:  UIControlEvents.touchUpInside)
+            let rightItem = UIBarButtonItem(customView: addBtn)
+            self.navigationItem.rightBarButtonItem = rightItem
             
-        case .query:
-              boxesREF = (self.REF_BOXES.child("boxCategory").queryEqual(toValue: ""))
+            
+            let searchBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 22, height: 22))
+            searchBtn.setImage(UIImage(named: "Search_50"), for: UIControlState.normal)
+            let searchAction = "searchTapped"
+            searchBtn.addTarget(self, action: Selector(searchAction), for:  UIControlEvents.touchUpInside)
+            let leftItem = UIBarButtonItem(customView: searchBtn)
+            self.navigationItem.leftBarButtonItem = leftItem
+            boxesREF = self.REF_BOXES
+            
+            print("Show all boxes")
 
+        case .query:
+            
+              boxesREF = (self.REF_BOXES.child(query.child).queryEqual(toValue: query.value))
+           
             print("Show only query boxes")
             
         case .category:
               self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(cancelButtonTapped))
               
             print("Show category")
-            if let category = self.showBoxByCategory {
+            if let category = self.itemPassed.itemCategory {
                 self.title = "\(category.capitalized) Boxes"
 
              boxesREF = REF_BOXES.queryOrdered(byChild: "boxCategory").queryEqual(toValue: category)
-                print("Show Querty: \(boxesREF)")
+                print("Show Query: \(boxesREF)")
 
             }
  
         }
  
-        
  
         boxesREF?.observe(.value, with: {(snapshot)  in
             self.boxes = [] // THIS IS THE NEW LINE
@@ -111,18 +130,41 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, BoxButto
                     if let boxDict = snap.value as? Dictionary<String, AnyObject> {
                         let key = snap.key
                         print("Box Snap Key: \(snap.key)")
+
+                        let countItemsREF = self.REF_BOXES.child(key).child("items")
+                         countItemsREF.observeSingleEvent(of: .value, with: { itemCountSnapshot in
+                             let theCount = itemCountSnapshot.childrenCount
+                            print("Box theCount: \(theCount)")
+
                         let box = Box(boxKey: key, dictionary: boxDict)
+                        box.boxItemCount = Int(theCount)
+
                         self.boxes.append(box)
+                         
+                            
+        
+            self.tableView.reloadData()
+                         })
                     }
                 }
+
             }
-            self.tableView.reloadData()
         })
+    
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+
     }
     
+    func newBox()  {
+        performSegue(withIdentifier: "newBox_SEGUE", sender: self)
+    }
     
-    func qrCodeButtonTapped() {
+    func searchTapped() {
+        print("search BUTTON TAPPED ")
+        let viewController:UIViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "qrScanner_navController") as UIViewController
+        // .instantiatViewControllerWithIdentifier() returns AnyObject! this must be downcast to utilize it
         
+        self.present(viewController, animated: false, completion: nil)
     }
     
     
@@ -136,26 +178,62 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, BoxButto
             return 1
         }
         
-        override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            
-            if boxes.count > 0 {
-                
-                self.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
-                return boxes.count
-            } else {
-                
-                let emptyStateLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 270, height: 32))
-                emptyStateLabel.font = emptyStateLabel.font.withSize(14)
-                emptyStateLabel.text = "Tap 'New Box' to Create your first empty Box"
-                emptyStateLabel.textAlignment = .center;
-                tableView.backgroundView = emptyStateLabel
-                
-                self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
-            }
-            
-            return 0
-    }
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return boxes.count
         
+    }
+    
+    
+    func image(forEmptyDataSet scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "package")
+    }
+    
+    func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "You Have No Boxes"
+        let attribs = [
+            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 18),
+            NSForegroundColorAttributeName: UIColor.darkGray
+        ]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    
+    
+    func description(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "Add Boxes By Tapping the + Button."
+        
+        let para = NSMutableParagraphStyle()
+        para.lineBreakMode = NSLineBreakMode.byWordWrapping
+        para.alignment = NSTextAlignment.center
+        
+        let attribs = [
+            NSFontAttributeName: UIFont.systemFont(ofSize: 14),
+            NSForegroundColorAttributeName: UIColor.lightGray,
+            NSParagraphStyleAttributeName: para
+        ]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    func buttonTitle(forEmptyDataSet scrollView: UIScrollView!, for state: UIControlState) -> NSAttributedString! {
+        
+        
+        let text = "Add Your First Box"
+        let attribs = [
+            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 16),
+            NSForegroundColorAttributeName: view.tintColor
+            ] as [String : Any]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    
+    func emptyDataSetDidTapButton(_ scrollView: UIScrollView!) {
+        self.performSegue(withIdentifier: "newBox_SEGUE", sender: self)
+    }
+    
+    
         override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell  = tableView.dequeueReusableCell(withIdentifier: "BoxCell") as? BoxCell {
             
@@ -180,11 +258,14 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, BoxButto
             case .category:
                 print("selected  \(boxes[indexPath.row])")
                 
-                if let cell = tableView.cellForRow(at: indexPath) {
-                    if cell.isSelected {
-                        cell.accessoryType = .checkmark
-                    }
-                }
+//                if let cell = tableView.cellForRow(at: indexPath) {
+//                    if cell.isSelected {
+//                        cell.accessoryType = .checkmark
+//                    }
+                    self.boxToPass = boxes[indexPath.row]
+                    self.performSegue(withIdentifier: "unwindToItemsFromBoxSel", sender: self)
+
+                
                 
             case .query:
                 self.boxToPass = boxes[indexPath.row]
@@ -192,20 +273,39 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, BoxButto
                 
             }
     }
-        
+
+//    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+//        print("DESELECT")
+//        
+//        if let cell = tableView.cellForRow(at: indexPath) {
+//            if cell.isSelected {
+//                cell.accessoryType = .none
+//            }
+//            
+//        }
+//    }
     
-        
+    
        override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-            
+        
+            var boxLabel: String!
+        
             itemIndexPath = indexPath as NSIndexPath?
             let boxToModify  = boxes[indexPath.row]
             let boxNumber = boxToModify.boxNumber
+        
+        if  let name = boxToModify.boxName {
+            boxLabel = name
+        } else {
+            boxLabel = "Number: \(boxNumber)"
+        }
+
             //                    let itemKey = itemToModify.itemKey
             
             
             let deleteAction = UITableViewRowAction(style: UITableViewRowActionStyle.default, title: "\u{1F5d1}\n Delete", handler: { (action: UITableViewRowAction, indexPath: IndexPath) -> Void in
                 
-                let alert = UIAlertController(title: "Wait!", message: "Are you sure you want to permanently delete: \(boxNumber)?", preferredStyle: .actionSheet)
+                let alert = UIAlertController(title: "Delete Box: \(boxLabel!) ?", message: "All contents will be Un-Boxed.", preferredStyle: .actionSheet)
                 
                 let DeleteAction = UIAlertAction(title: "Delete", style: .destructive, handler: self.handleDeleteItem)
                 let CancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: self.cancelDeleteItem)
@@ -320,42 +420,43 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, BoxButto
         
         
   
-    
-        @IBAction func unwindToItemsFromBoxSel(sender: UIStoryboardSegue) {
-            //        if let sourceViewController = sender.sourceViewController
-            //            as? SelectBoxVC {
-            //            let selectedBox = sourceViewController.selectedBox  //passed from PickBox VC
-            //            
-            //            //save box key to Item
-            //            let itemRef = DataService.ds.REF_ITEMS.childByAppendingPath(self.selectedItem.itemKey).childByAppendingPath("inBox")
-            //            let boxData = [selectedBox : true ]
-            //            itemRef.setValue(boxData)
-            //
-            //            //save item key to box
-            //            let boxRef = DataService.ds.REF_BOXES.childByAppendingPath(selectedBox).childByAppendingPath("items")
-            //            let itemData = [self.selectedItem.itemKey : true ]
-            //            boxRef.setValue(itemData)
-            //
-            //            
-            //        }
+ 
+        @IBAction func unwindFromQR(sender: UIStoryboardSegue) {
+        if let sourceViewController = sender.source as? qrScannerVC {
+            if let selectedBox = sourceViewController.qrData  { //passed from PickBox VC
+            self.boxLoadType = .query
+            self.query = (child: "boxNum", value: selectedBox)
+            }
+                    }
         }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print("boxFeed prepareForSegue ")
  
+       
             
-            if segue.identifier == "existingBox_SEGUE" {
-                print("existing Box _SEGUE ")
-                
+            
+            
+         
                 if let destination = segue.destination as? BoxDetails {
+                    if segue.identifier == "existingBox_SEGUE" {
+                        print("existing Box _SEGUE ")
+                
                     destination.box = boxToPass
                     destination.boxIsNew = false
 //                    print("Item to Pass is \(itemToPass.itemName)")
-                }
-            }
+                        
+//                    } else {
+//                        if segue.identifier == "newBox_SEGUE" {
+//                            print("newBox_SEGUE ")
+//                        destination.setStartingBoxNumber = createStartingNumber
+//
+//                }
+         }
+        
             
         }
-    
+    }
     
 }//itemFeedVC
 

@@ -32,6 +32,13 @@ class SettingsVC: UITableViewController {
     @IBAction func unwindCancelToSettings(_ segue:UIStoryboardSegue) {
     }
     
+    
+    @IBAction func unwindLocationsToSettings(_ segue:UIStoryboardSegue) {
+    
+    
+    }
+    
+    
     @IBAction func signOut_Tapped(_ sender: UIBarButtonItem) {
         
             print("LOGOUT Gesture Tapped")
@@ -86,11 +93,15 @@ class SettingsVC: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print("prepareForSegue FROM SETTINGS")
         
+        if let colorsVC = segue.destination as? ColorTableVC {
+            colorsVC.colorLoadsFrom = .settings
+        } else {
+        
             if segue.identifier == "locationSettings" {
                 print("Going to locationSettings ")
                 
-                if let locationsVC = segue.destination as? LocationsVC {
-                    locationsVC.fromSettings = true
+                if let locationsVC = segue.destination as? LocationDetailsVC {
+                        locationsVC.locationSelection = .settings
                  }
             } else {
         
@@ -104,6 +115,7 @@ class SettingsVC: UITableViewController {
                 }
         }
         }
+    }
     
     
 //     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {

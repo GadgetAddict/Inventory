@@ -10,3 +10,6 @@ import UIKit
 
  
 let SHADOW_COLOR:CGFloat = 157.0 / 255.0
+
+
+var COLLECTION_ID: String!

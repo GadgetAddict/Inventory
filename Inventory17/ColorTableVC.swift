@@ -9,11 +9,17 @@
 import UIKit
 import Firebase
 
+enum ColorLoadsFrom:String {
+    case box
+    case item
+    case settings
+}
+
 class ColorTableVC: UITableViewController {
 
+    var segueId: String!
         var colors = [Color]()
-        var fromSettings: Bool = false
-
+         var colorLoadsFrom: ColorLoadsFrom = .box
         var selectedColor: Color?
         var colorIndexPath: NSIndexPath? = nil
         var collectionID: String!
@@ -71,9 +77,18 @@ class ColorTableVC: UITableViewController {
             tableView.tableFooterView = UIView()
             tableView.tableFooterView = UIView(frame: CGRect.zero)
             
-                 if fromSettings == true {
-                    tableView.allowsSelection = false
-                }
+            switch colorLoadsFrom {
+            case .box:
+                print("BOX")
+                self.segueId = "unwindToBoxDetailsWithColor"
+
+            case .item:
+                self.segueId = "unwind_saveColorToItemDetails"
+            case .settings:
+                tableView.allowsSelection = false
+                
+            }
+            
             
             
             let defaults = UserDefaults.standard
@@ -98,9 +113,9 @@ class ColorTableVC: UITableViewController {
         func writeToFb(enteredText: String) {
             print("I'm in postToFirebase")
             
-            let newStatusTrimmed = enteredText.trimmingCharacters(in: NSCharacterSet.whitespaces)
+            let newColorTrimmed = enteredText.trimmingCharacters(in: NSCharacterSet.whitespaces)
             
-            let color = ["colorName": newStatusTrimmed]
+            let color = ["colorName": newColorTrimmed.capitalized]
             
             
             let REF_COLOR = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/colors").childByAutoId()
@@ -293,10 +308,8 @@ class ColorTableVC: UITableViewController {
             print("CALLING THE SEGUE CELL")
             self.selectedColor = colors[indexPath.row]
             
-            self.performSegue(withIdentifier: "unwind_saveColorToItemDetails", sender: self)
-            
+            self.performSegue(withIdentifier: self.segueId , sender: self)
         }
-    
         
         func showErrorAlert(title: String, msg: String) {
             let alertView = UIAlertController(title: title, message: msg, preferredStyle: .alert)

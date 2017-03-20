@@ -9,8 +9,9 @@
 
 import UIKit
 import Firebase
+import DZNEmptyDataSet
 
-class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate  {
+class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate,DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
 
     
     var statuses = [Status]()
@@ -22,14 +23,14 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate  {
     var REF_STATUS: FIRDatabaseReference!
     
     
-    @IBAction func doneButton(sender: UIBarButtonItem) {
-        //        self.dismiss(animated: true, completion: nil)
-        _ = navigationController?.popViewController(animated: true)
-        
-    }
+ 
     
     @IBAction func addNewStatus(sender: AnyObject) {
-        
+        createNewStatus()
+    }
+    
+    
+    func createNewStatus(){
         var alertController:UIAlertController?
         alertController = UIAlertController(title: "New Status",
                                             message: "Enter a new status",
@@ -72,7 +73,8 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate  {
         
         tableView.tableFooterView = UIView()
         tableView.tableFooterView = UIView(frame: CGRect.zero)
-        
+        self.tableView.emptyDataSetSource = self
+        self.tableView.emptyDataSetDelegate = self
         if fromSettings == true {
             tableView.allowsSelection = false
         }
@@ -152,24 +154,8 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate  {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        tableView.backgroundView = nil
-        
-        if statuses.count > 0 {
-            
-            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.singleLine
+ 
             return statuses.count
-        } else {
-            
-            let emptyStateLabel = UILabel(frame: CGRect(x: 0, y: 40, width: 270, height: 32))
-            emptyStateLabel.font = emptyStateLabel.font.withSize(14)
-            emptyStateLabel.text = "Tap '+' to add a New Status"
-            emptyStateLabel.textAlignment = .center;
-            tableView.backgroundView = emptyStateLabel
-            
-            self.tableView.separatorStyle = UITableViewCellSeparatorStyle.none
-        }
-        
-        return 0
     }
     
     
@@ -192,28 +178,56 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate  {
     
     
     
-    // MARK: UITableViewDelegate Methods
-    func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .delete {
-            statusIndexPath = indexPath
-            let status  = statuses[indexPath.row]
-            let statussToDelete = status.statusName
-            confirmDelete(Item: statussToDelete!)
-        } else {
-            if editingStyle == .insert {
-                tableView.beginUpdates()
-                
-                //                tableView.insertRowsAtIndexPaths([
-                //                    NSIndexPath(forRow: statuses.count-1, inSection: 0)
-                //                    ], withRowAnimation: .Automatic)
-                //
-                tableView.endUpdates()
-            }
-        }
+    func image(forEmptyDataSet scrollView: UIScrollView!) -> UIImage! {
+        return UIImage(named: "package")
+    }
+    
+    func title(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "Create a list of statuses"
+        let attribs = [
+            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 18),
+            NSForegroundColorAttributeName: UIColor.darkGray
+        ]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    func description(forEmptyDataSet scrollView: UIScrollView!) -> NSAttributedString! {
+        let text = "Add a new status tapping the + button."
+        
+        let para = NSMutableParagraphStyle()
+        para.lineBreakMode = NSLineBreakMode.byWordWrapping
+        para.alignment = NSTextAlignment.center
+        
+        let attribs = [
+            NSFontAttributeName: UIFont.systemFont(ofSize: 14),
+            NSForegroundColorAttributeName: UIColor.lightGray,
+            NSParagraphStyleAttributeName: para
+        ]
+        
+        return NSAttributedString(string: text, attributes: attribs)
+    }
+    
+    func buttonTitle(forEmptyDataSet scrollView: UIScrollView!, for state: UIControlState) -> NSAttributedString! {
+        
+        let text = "Create your first Status"
+        let attribs = [
+            NSFontAttributeName: UIFont.boldSystemFont(ofSize: 16),
+            NSForegroundColorAttributeName: view.tintColor
+            ] as [String : Any]
+        
+        return NSAttributedString(string: text, attributes: attribs)
     }
     
     
-    func tableView(tableView: UITableView, editActionsForRowAtIndexPath indexPath: NSIndexPath) -> [UITableViewRowAction]? {
+    func emptyDataSetDidTapButton(_ scrollView: UIScrollView!) {
+        createNewStatus()
+    }
+    
+ 
+    
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+  
         
         statusIndexPath = indexPath as NSIndexPath?
         let statusesToDelete  = statuses[indexPath.row]

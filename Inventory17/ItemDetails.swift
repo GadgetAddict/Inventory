@@ -24,6 +24,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
     var newItem: Item!
     var REF_ITEMS = DataService.ds.REF_BASE
     var collectionId: String!
+    var imageChanged: Bool! = false
     
     @IBOutlet weak var itemNameField: UITextField!
 
@@ -157,7 +158,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
         myImageView.contentMode = .scaleAspectFill //3
         myImageView.image = chosenImage //4
         blurredImage.image = chosenImage //4
-        
+        imageChanged = true
         dismiss(animated:true, completion: nil) //5
     }
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -187,7 +188,8 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
             }
         }
         
-        
+        let concurrentQueue = DispatchQueue(label: "queuename", attributes: .concurrent)
+
         switch itemType {
         
         case .boxItem:
@@ -201,8 +203,22 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
                  self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionId!)/inventory/items/\(key)")
             }
           
+            concurrentQueue.async {
+
+            self.loadPassedItem()
            
-            loadPassedItem()
+            
+            }
+
+            concurrentQueue.async {
+                
+             
+            
+                        self.downloadImageUserFromFirebase(item:self.passedItem!)
+            //            loadImage(item: item)
+                        }
+            
+            
             print("loadPassedItem \(self.REF_ITEMS)")
 
         case .new:
@@ -233,7 +249,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
     }
     
     func loadBoxItem(){
-
+ 
             self.REF_ITEMS.observeSingleEvent(of: .value, with: { (snapshot) in
        
             if let itemDict = snapshot.value as? NSDictionary {
@@ -248,14 +264,46 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
             }) { (error) in
                 print(error.localizedDescription)
         }
+ 
     }
 
+ 
+        
+        //here we are initializing it as a property of the class
+    
+        func downloadImageUserFromFirebase(item: Item) {
+            
+            if let itemImageURL = item.itemImgUrl {
+            
+            let ref = FIRStorage.storage().reference(forURL: itemImageURL)
+
+//            let reference: FIRStorageReference = storage.reference(forURL: itemImageURL)
+            ref.downloadURL { (url, error) in
+                //using a guard statement to unwrap the url and check for error
+                guard let imageURL = url, error == nil  else {
+                    //handle error here if returned url is bad or there is error
+                    return
+                }
+                guard let data = NSData(contentsOf: imageURL) else {
+                    //same thing here, handle failed data download
+                    return
+                }
+                let image = UIImage(data: data as Data)
+                self.myImageView.image = image
+                self.blurredImage.image = image
+                }
+            }
+        }
+        
+    
 
     func loadImage(item: Item){
 //        if let img = itemFeedVC.imageCache.object(forKey: item.itemImgUrl as NSString) {
 
-      
-                let ref = FIRStorage.storage().reference(forURL: item.itemImgUrl)
+        if let itemImageURL = item.itemImgUrl {
+            
+        
+                let ref = FIRStorage.storage().reference(forURL: itemImageURL)
                 ref.data(withMaxSize: 2 * 1024 * 1024, completion: { (data, error) in
                     if error != nil {
                         print("MK: Unable to download image from Firebase storage")
@@ -264,18 +312,27 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
                         if let imgData = data {
                             if let img = UIImage(data: imgData) {
                                 self.myImageView.image = img
+                                self.blurredImage.image = img
 //                                itemFeedVC.imageCache.setObject(img, forKey: item.itemImgUrl as NSString)
                             }
                         }
                     }
                 })
             }
+    }
     
    
     func loadPassedItem() {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+
         print("LOADING ITEM")
         if let item = passedItem {
+//            DispatchQueue.main.async {
             
+            
+//            self.downloadImageUserFromFirebase(item: item)
+//            loadImage(item: item)
+//            }
             self.title = item.itemName
  
           itemNameField.text = item.itemName
@@ -300,17 +357,22 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
 
 
         }
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+
     }
     
     
     
     @IBAction func saveItemTapped(_ sender: UIBarButtonItem) {
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+
         checkForEmptyFields()
         
     }
     
     func checkForEmptyFields() {
-        
+        EZLoadingActivity.show("Saving", disableUI: true)
+
         guard  itemNameField.text != "" else {
             let errMsg = "Item name is Required "
             newItemErrorAlert("Ut oh...", message: errMsg)
@@ -340,21 +402,32 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
                 if error != nil {
                     print("JESS: Unable to upload image to Firebasee storage")
                     
-                    if self.itemType == .new {
-                    self.postToFirebase(imgUrl: "gs://inventory-694e9.appspot.com/placeholder.png")
-                    
-                    } else {
-                    self.updateFirebaseData(imgUrl: "gs://inventory-694e9.appspot.com/placeholder.png")
-                    }
-
+//                    if self.itemType == .new {
+//                    self.postToFirebase(imgUrl: "gs://inventory-694e9.appspot.com/placeholder.png")
+//                    
+//                    } else {
+//                    self.updateFirebaseData(imgUrl: "gs://inventory-694e9.appspot.com/placeholder.png")
+//                    }
+//
 
                 } else {
                     
                   
+                    var url: String!
+                    
+                    switch self.imageChanged {
+                    case true:
+                          url = metadata?.downloadURL()?.absoluteString
 
-                    print("JESS: Successfully uploaded image to Firebase storage")
-                    let downloadURL = metadata?.downloadURL()?.absoluteString
-                    if let url = downloadURL {
+                    case false:
+                          url = nil
+                    default:
+                        print(" Shizzle")
+                    }
+                    
+                     
+//                    let url = metadata?.downloadURL()?.absoluteString
+//                    if let url = downloadURL {
                         
                         if self.itemType == .new {
                             print("MK: Goto self.posttoFB")
@@ -366,7 +439,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
 
                         self.updateFirebaseData(imgUrl: url)
                             
-                        }
+                           
                     }
                 }
             }
@@ -375,9 +448,10 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
     
     
     
-    func postToFirebase(imgUrl: String) {
+    func postToFirebase(imgUrl: String?) {
         print("I'm in postToFirebase")
 
+        
         let newItem = Item(itemName: (itemNameField.text?.capitalized)!, itemCat: (itemCategory.text?.capitalized)!, itemSubcat: (itemSubCategory.text?.capitalized)!, itemColor: itemColor.text?.capitalized)
         
         
@@ -400,17 +474,17 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
 
                 self.REF_ITEMS.setValue(itemDict)
 
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+
         //                self.dismiss(animated: true, completion: {})
                  _ = navigationController?.popViewController(animated: true)
-        
+        EZLoadingActivity.hide(success: true, animated: true )
             }
     
  
-    func updateFirebaseData(imgUrl: String) {
+    func updateFirebaseData(imgUrl: String?) {
 //     self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(collectionId!)/inventory/items/\(self.passedItem!.itemKey!)")
         
-        
-        print("MK: QTY Changed to :\(itemQty)")
 
         let existingItem = Item(itemName: (itemNameField.text?.capitalized)!, itemCat: (itemCategory.text?.capitalized)!, itemSubcat: (itemSubCategory.text?.capitalized)!, itemColor: itemColor.text?.capitalized)
       
@@ -426,6 +500,9 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
             "itemColor": existingItem.itemColor as AnyObject
             ])
         
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
+        EZLoadingActivity.hide(success: true, animated: true)
+
         _ = navigationController?.popViewController(animated: true)
 
     }
@@ -481,6 +558,14 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
                  
             }
         }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+      
+            if let colorVC = segue.destination as? ColorTableVC {
+                colorVC.colorLoadsFrom = .item
+            }
     }
     
     

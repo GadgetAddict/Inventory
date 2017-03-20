@@ -35,8 +35,8 @@
                                                     <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="4Vj-ZF-nQN">
-                                                    <rect key="frame" x="298" y="12" width="42" height="20"/>
+                                                <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Select" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="4Vj-ZF-nQN">
+                                                    <rect key="frame" x="294" y="12" width="46" height="20"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                                     <color key="textColor" red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -106,11 +106,12 @@
                     </navigationItem>
                     <connections>
                         <outlet property="categoryNameLabel" destination="4Vj-ZF-nQN" id="Unb-tt-cS7"/>
+                        <outlet property="subCatTableCell" destination="bVV-ft-2Dx" id="9lg-79-kxd"/>
                         <outlet property="subCcategoryNameLabel" destination="o4T-KY-IAA" id="bWk-fn-ChA"/>
-                        <outlet property="subcategoryTableSection" destination="bVV-ft-2Dx" id="QTb-et-N70"/>
                         <segue destination="jD3-Jn-xDV" kind="unwind" identifier="unwind_saveCategoryToItemDetails" unwindAction="unwind_saveCategoryToItemDetails:" id="hub-KJ-NQb"/>
                         <segue destination="jD3-Jn-xDV" kind="unwind" identifier="unwind_CancelToItemDetails" unwindAction="unwind_CancelToItemDetails:" id="5os-cO-Giz"/>
                         <segue destination="jD3-Jn-xDV" kind="unwind" identifier="unwindCancelToSettings" unwindAction="unwindCancelToSettings:" id="vQM-XU-PXt"/>
+                        <segue destination="jD3-Jn-xDV" kind="unwind" identifier="unwind_CancelToItemDetails" unwindAction="unwind_CancelToItemDetails:" id="L1t-zk-FtT"/>
                     </connections>
                 </tableViewController>
                 <exit id="jD3-Jn-xDV" userLabel="Exit" sceneMemberID="exit"/>
@@ -160,11 +161,10 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" title="Categories" id="G8O-jH-Zdb">
-                        <barButtonItem key="leftBarButtonItem" systemItem="done" id="sKK-UG-kRL">
+                        <barButtonItem key="leftBarButtonItem" title="Back" id="sKK-UG-kRL">
                             <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <connections>
-                                <action selector="addNewCategoryWithSender:" destination="w1g-jX-pyh" id="aNn-3J-lLb"/>
-                                <segue destination="WhB-TC-QhH" kind="unwind" unwindAction="unwindCancelCategoryPicker:" id="xG7-zJ-JuV"/>
+                                <action selector="backButtonTapped:" destination="w1g-jX-pyh" id="nbt-pu-Fdc"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="EAD-hZ-Kgj">
@@ -177,6 +177,8 @@
                     <connections>
                         <segue destination="WhB-TC-QhH" kind="unwind" identifier="unwindToBoxDetailsWithCategory" unwindAction="unwindToBoxDetailsWithCategory:" id="lPK-rI-CdQ"/>
                         <segue destination="WhB-TC-QhH" kind="unwind" identifier="unwindWithSelectedCategory" unwindAction="unwindWithSelectedCategory:" id="9v4-pW-31Q"/>
+                        <segue destination="WhB-TC-QhH" kind="unwind" identifier="unwindCancelCategoryPicker" unwindAction="unwindCancelCategoryPicker:" id="oBt-2i-Zjy"/>
+                        <segue destination="WhB-TC-QhH" kind="unwind" identifier="unwindToBoxDetailsCancel" unwindAction="unwindToBoxDetailsCancel:" id="qAj-gf-FlU"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="fET-ii-TbA" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -187,7 +189,7 @@
         <!--Navigation Controller-->
         <scene sceneID="Oqh-1K-pAi">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="EdU-xn-scl" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="CategoryNavigationSB" automaticallyAdjustsScrollViewInsets="NO" useStoryboardIdentifierAsRestorationIdentifier="YES" id="EdU-xn-scl" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="6rm-bL-Nk6">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>

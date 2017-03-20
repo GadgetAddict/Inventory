@@ -19,7 +19,7 @@ class Item  {
     
     
      private var _itemKey: String!
-    private var _itemImgUrl: String!
+    private var _itemImgUrl: String?
 //    private var _imageType: itemImageType!
     private var _itemName:String!
     private var _itemNotes: String?
@@ -48,7 +48,7 @@ class Item  {
 //        return _imageType
 //    }
 
-    var itemImgUrl: String! {
+    var itemImgUrl: String? {
         return _itemImgUrl
     }
     

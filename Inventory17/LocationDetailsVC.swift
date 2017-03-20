@@ -10,11 +10,14 @@ import UIKit
 
 enum LocationSelection:String {
     case box
-    case favorites
+    case settings
 }
+
+
 
 class LocationDetailsVC: UITableViewController {
 
+    @IBOutlet weak var doneButton: UIBarButtonItem!
     @IBOutlet weak var locNameLabel: UILabel!
     @IBOutlet weak var areaLabel: UILabel!
     @IBOutlet weak var detailLabel: UILabel!
@@ -23,8 +26,13 @@ class LocationDetailsVC: UITableViewController {
     @IBOutlet weak var areaTableCell: UITableViewCell!
     @IBOutlet weak var detailTableCell: UITableViewCell!
     
-    var location:Location?
+     var passedBoxLocation: Box?
+    var passedALocation: Bool = false
+    
+    var location:Location!
     var selectedBoxLocation: Location!
+    var categorySelectionOption: CategorySelection = .item
+
     var locationSelection: LocationSelection = .box
     var locName:String! {
         didSet {
@@ -32,23 +40,33 @@ class LocationDetailsVC: UITableViewController {
             
             self.location = Location(name: locName, detail: nil, area: nil)
 
-        }
+            
+            hideDoneButton(isHidden:false)
+          
+            areaTableCell.isUserInteractionEnabled = true
+            areaLabel.isHidden = false
+            areaLabel.attributedText = changeDetailText(string: "Select", font: "HelveticaNeue-Bold")
+         }
     }
     
     var locArea:String = "Area" {
         didSet {
             areaLabel.text? = locArea
-            self.location = Location(name: locName, detail: locDetail, area: nil)
-        
+            self.location = Location(name: locName, detail: nil, area: locArea)
+ 
+            detailTableCell.isUserInteractionEnabled = true
+            detailLabel.isHidden = false
+            detailLabel.attributedText = changeDetailText(string: "Select", font: "HelveticaNeue-Bold")
+  
+
         }
     }
     
     var locDetail:String! {
         didSet {
             detailLabel.text? = locDetail
-            self.location = Location(name: locName, detail: locArea, area: locArea)
-
-        }
+            self.location = Location(name: locName, detail: locDetail, area: locArea)
+         }
     }
     
     func changeDetailText(string: String, font: String) -> NSAttributedString {
@@ -63,9 +81,43 @@ class LocationDetailsVC: UITableViewController {
 
     }
     
-
-        override func viewDidLoad() {
+ 
+    
+    
+    
+    @IBAction func cancelButtonPressed(_ sender: UIBarButtonItem) {
+        print("CANCEL BUTTON PRESSEd")
         
+        performSegue(withIdentifier: "unwindCancelToSettings", sender: nil)
+        
+        
+    }
+    
+    func hideDoneButton(isHidden: Bool)  {
+        if isHidden == true {
+            doneButton?.isEnabled      = false
+            doneButton?.tintColor    = UIColor.clear
+        }else{
+            doneButton?.isEnabled      = true
+            doneButton?.tintColor    = nil
+        }
+        
+    }
+    
+        override func viewDidLoad() {
+            
+            hideDoneButton(isHidden:true)
+            
+            detailTableCell.isUserInteractionEnabled = false
+            areaTableCell.isUserInteractionEnabled = false
+            areaLabel.isHidden = true
+            detailLabel.isHidden = true
+            
+            if locationSelection == .settings {
+                self.navigationItem.leftBarButtonItem?.tintColor = UIColor.clear
+                self.navigationItem.leftBarButtonItem?.isEnabled = false
+
+            }
             
             let boldLabelFont = UIFont(name: "HelveticaNeue-Bold", size: 17)
    
@@ -75,30 +127,45 @@ class LocationDetailsVC: UITableViewController {
 
             locNameLabel.attributedText = locationAttrString
            
-        
-        detailTableCell.isUserInteractionEnabled = false
-        areaTableCell.isUserInteractionEnabled = false
-
+            if passedALocation == true {
+                loadPassedLocations()
+            }
+       
     }
+    
+    func loadPassedLocations() {
+        if let passedLocation = passedBoxLocation?.boxLocationName {
+             self.locName = passedLocation
+        }
+        if let passedLocationArea = passedBoxLocation?.boxLocationArea {
+            self.locArea = passedLocationArea
+        }
+        if let passedLocationDetail = passedBoxLocation?.boxLocationDetail {
+            self.locDetail = passedLocationDetail
+        }
+        
+    }
+
     @IBAction func doneButtonPressed(_ sender: UIBarButtonItem) {
         
-        if locNameLabel.text != "Detail" {
-            
-                            switch locationSelection {
-                            case .box:
-                                performSegue(withIdentifier: "unwindToBoxDetailsWithLocation", sender: nil)
-            
-                            case .favorites:
-                                performSegue(withIdentifier: "saveLocationDetail", sender: nil)
-            
-                            }
-            
-                        } else {
-            errorAlert("Whoops", message: "A Location Name is Required")
-                        }
-                    }
+        
+                    switch locationSelection {
+                    case .box:
+                        if locNameLabel.text != "Select" {
 
-   
+                        performSegue(withIdentifier: "unwindToBoxDetailsWithLocation", sender: nil)
+                        } else {
+                            errorAlert("Whoops", message: "A Location Name is Required")
+                        }
+                    case .settings:
+                        
+                        performSegue(withIdentifier: "unwindLocationsToSettings" , sender: nil)
+                    }
+                }
+ 
+
+
+
     func errorAlert(_ title: String, message: String) {
         // Called upon login error to let the user know login didn't work.
         
@@ -121,54 +188,41 @@ class LocationDetailsVC: UITableViewController {
 //            nameTextField.becomeFirstResponder()
 //        }
 //    }
-    
-    
-    
-       
+
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print("LocDetails prepare for segue called")
-       
-        if segue.identifier == "unwindToBoxDetailsWithLocation" {
-            print("SaveLocations")
 
-            location = Location(name: locName, detail: locDetail, area: locArea )
+        if segue.identifier == "unwindToBoxDetailsWithLocation" {
+            selectedBoxLocation = Location(name: locName, detail: locDetail, area: locArea )
+           print("Passing Locations to BoX DETAILS: \(selectedBoxLocation.locationName) LocArea: \(selectedBoxLocation.locationArea) LocDetail: \(selectedBoxLocation.locationDetail)")
         }
+     
+        
         
         if let locationPickerViewController = segue.destination as? LocationPickerVC {
             print("destination as? LocationPickerVC")
+            locationPickerViewController.passedLocation = self.location
             
-        if segue.identifier == "PickDetail" {
-                locationPickerViewController.locationType = LocationType.detail
-            if let locName = self.location?.locationName {
-
-                if let locArea = self.location?.locationArea {
-                    
-                locationPickerViewController.passedLoc = "\(locName)/\(locArea)"
-
-//                print("I picked Location Type \(locationPickerViewController.locationType.rawValue) aka DETAIL")
-                    }
+        
+            if let identifier = segue.identifier {
+                switch identifier {
+                case  "PickName":
+                    locationPickerViewController.locationType = LocationType.name
+                     print("GotoPicker for Name")
+                case "PickArea":
+                    locationPickerViewController.locationType = LocationType.area
+                    print("GotoPicker for Area")
+                case "PickDetail":
+                    locationPickerViewController.locationType = LocationType.detail
+                    print("GotoPicker for Detail")
+                                default:
+                    print("default")
                 }
             }
-        if segue.identifier == "PickArea" {
-            locationPickerViewController.locationType = LocationType.area
-            
-            if let locName = self.location?.locationName {
-                locationPickerViewController.passedLoc = locName
-
-            }
-//            print("I picked Location Type \(locationPickerViewController.locationType.rawValue)aka AREA")
-            
-            
-        }
-        if segue.identifier == "PickName" {
-            locationPickerViewController.locationType = LocationType.name
-            print("I picked Location Type \(locationPickerViewController.locationType.rawValue)aka NAME")
-                 }
-            
         }
     }
-//
-//    //Unwind segue
+ 
+
     
     @IBAction func unwindCancelLocationPicker(_ segue:UIStoryboardSegue) {
     }
@@ -185,29 +239,41 @@ class LocationDetailsVC: UITableViewController {
             switch locationType {
            
             case .name:
-                print("NAME")
-                self.locName = (selectedLocation.locationName)!
-                areaTableCell.isUserInteractionEnabled = true
-                areaLabel.attributedText = changeDetailText(string: "Select", font: "HelveticaNeue-Bold")
+                print("NAME ")
+                if let name = selectedLocation.locationName{
+                    print("Name returned is : \(name)")
+                    self.locName = name
+                }
+          
+//                areaTableCell.isUserInteractionEnabled = true
+//                areaLabel.isHidden = false
+//                areaLabel.attributedText = changeDetailText(string: "Select", font: "HelveticaNeue-Bold")
             
             case .area :
                 print("AREA ")
-                self.locArea = (selectedLocation.locationArea)!
-                detailTableCell.isUserInteractionEnabled = true
-                detailLabel.attributedText = changeDetailText(string: "Select", font: "HelveticaNeue-Bold")
+                if let area = selectedLocation.locationArea{
+                    print("Area returned is : \(area)")
+                    self.locArea = area
+                }
+
+//                detailTableCell.isUserInteractionEnabled = true
+//                detailLabel.isHidden = false
+//                detailLabel.attributedText = changeDetailText(string: "Select", font: "HelveticaNeue-Bold")
                 
                 
             case .detail:
                 print("DETAIL")
-                self.locDetail = (selectedLocation.locationDetail)!
-
-                
+                 if let detail = selectedLocation.locationDetail{
+                    print("Detail returned is : \(detail)")
+                    self.locDetail = detail
                 }
                 
+                    }
+                
+                }
             }
-        }
         
-}
+        }
     
     
     
