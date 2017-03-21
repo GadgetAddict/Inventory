@@ -176,31 +176,31 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
         tableView.tableFooterView = UIView()
         tableView.tableFooterView = UIView(frame: CGRect.zero)
         
-        
-        let defaults = UserDefaults.standard
-        if (defaults.object(forKey: "CollectionIdRef") != nil) {
-            
-            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                print("Item Details VC Getting CollectionIdRef \(collectionId)")
-                self.collectionId = collectionId
-             
-                
-            }
-        }
-        
+//        
+//        let defaults = UserDefaults.standard
+//        if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//            
+//            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//                print("Item Details VC Getting CollectionIdRef \(collectionId)")
+//                self.collectionId = collectionId
+//             
+//                
+//            }
+//        }
+//        
         let concurrentQueue = DispatchQueue(label: "queuename", attributes: .concurrent)
 
         switch itemType {
         
         case .boxItem:
-            self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionId!)/inventory/items/\(boxItemKey!)")
+            self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items/\(boxItemKey!)")
                   
             loadBoxItem()
             print("loadBoxItem \(self.REF_ITEMS)")
             
         case .existing:
             if let key = self.passedItem?.itemKey{
-                 self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionId!)/inventory/items/\(key)")
+                 self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items/\(key)")
             }
           
             concurrentQueue.async {
@@ -223,7 +223,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
 
         case .new:
             self.title = "New Item"
-               self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionId!)/inventory/items/")
+               self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items/")
             print("NEW")
         }
      
@@ -469,7 +469,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
             "itemColor": newItem.itemColor as AnyObject
         ]
         
-                self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionId!)/inventory/items").childByAutoId()
+                self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items").childByAutoId()
         print("REF is \(self.REF_ITEMS)")
 
                 self.REF_ITEMS.setValue(itemDict)
@@ -477,7 +477,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
 
         //                self.dismiss(animated: true, completion: {})
-                 _ = navigationController?.popViewController(animated: true)
+        popViewController()
         EZLoadingActivity.hide(success: true, animated: true )
             }
     
@@ -502,12 +502,14 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
         EZLoadingActivity.hide(success: true, animated: true)
-
-        _ = navigationController?.popViewController(animated: true)
+        popViewController()
 
     }
     
-    
+    func popViewController(){
+        _ = navigationController?.popViewController(animated: true)
+
+    }
     
     
     func newItemErrorAlert(_ title: String, message: String) {

@@ -64,17 +64,17 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
     func loadBoxes(){
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
 
-        let defaults = UserDefaults.standard
+//        let defaults = UserDefaults.standard
+//        
+//        if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//            
+//            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
         
-        if (defaults.object(forKey: "CollectionIdRef") != nil) {
-            
-            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                
-                    self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(collectionId)/inventory/boxes")
+                    self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes")
                 print("Load Collection REF: \(self.REF_BOXES)")
                 
-            }
-        }
+        
+        
         
         
  
@@ -160,11 +160,14 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
     }
     
     func searchTapped() {
-        print("search BUTTON TAPPED ")
-        let viewController:UIViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "qrScanner_navController") as UIViewController
-        // .instantiatViewControllerWithIdentifier() returns AnyObject! this must be downcast to utilize it
+        print("boxQR_SEGUE BUTTON TAPPED ")
+        performSegue(withIdentifier: "boxQR_SEGUE", sender: self)
+
         
-        self.present(viewController, animated: false, completion: nil)
+//        let viewController:UIViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "qrScanner_navController") as UIViewController
+//        // .instantiatViewControllerWithIdentifier() returns AnyObject! this must be downcast to utilize it
+//        
+//        self.present(viewController, animated: false, completion: nil)
     }
     
     
@@ -419,17 +422,17 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
         
         
         
-  
- 
-        @IBAction func unwindFromQR(sender: UIStoryboardSegue) {
-        if let sourceViewController = sender.source as? qrScannerVC {
-            if let selectedBox = sourceViewController.qrData  { //passed from PickBox VC
-            self.boxLoadType = .query
-            self.query = (child: "boxNum", value: selectedBox)
-            }
-                    }
-        }
-    
+//  
+// 
+//        @IBAction func unwindFromQR(sender: UIStoryboardSegue) {
+//        if let sourceViewController = sender.source as? qrScannerVC {
+//            if let selectedBox = sourceViewController.qrData  { //passed from PickBox VC
+//            self.boxLoadType = .query
+//            self.query = (child: "boxNum", value: selectedBox)
+//            }
+//                    }
+//        }
+//    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print("boxFeed prepareForSegue ")
  
@@ -443,8 +446,8 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
                         print("existing Box _SEGUE ")
                 
                     destination.box = boxToPass
-                    destination.boxIsNew = false
-//                    print("Item to Pass is \(itemToPass.itemName)")
+                    destination.boxSegueType = .existing
+                        //                    print("Item to Pass is \(itemToPass.itemName)")
                         
 //                    } else {
 //                        if segue.identifier == "newBox_SEGUE" {

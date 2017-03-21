@@ -22,7 +22,6 @@ class ColorTableVC: UITableViewController {
          var colorLoadsFrom: ColorLoadsFrom = .box
         var selectedColor: Color?
         var colorIndexPath: NSIndexPath? = nil
-        var collectionID: String!
          var REF_COLOR: FIRDatabaseReference!
         
         
@@ -91,16 +90,16 @@ class ColorTableVC: UITableViewController {
             
             
             
-            let defaults = UserDefaults.standard
-            
-            if (defaults.object(forKey: "CollectionIdRef") != nil) {
-                print("Getting Defaults")
-                
-                if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                    self.collectionID = collectionId
-                }
-            }
-            
+//            let defaults = UserDefaults.standard
+//            
+//            if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//                print("Getting Defaults")
+//                
+//                if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//                    self.collectionID = collectionId
+//                }
+//            }
+//            
             loadDataFromFirebase()
             
             // End ViewDidLoad
@@ -118,7 +117,7 @@ class ColorTableVC: UITableViewController {
             let color = ["colorName": newColorTrimmed.capitalized]
             
             
-            let REF_COLOR = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/colors").childByAutoId()
+            let REF_COLOR = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/colors").childByAutoId()
             
             REF_COLOR.setValue(color)
             
@@ -132,7 +131,7 @@ class ColorTableVC: UITableViewController {
         func loadDataFromFirebase() {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             
-            self.REF_COLOR = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/colors")
+            self.REF_COLOR = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/colors")
             
             //         REF_STATUS.queryOrdered(byChild: "statusName").observe(.value, with: { snapshot in
             

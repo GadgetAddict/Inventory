@@ -13,7 +13,7 @@ class LoginViewController: UIViewController {
     let loginToApp = "SIGNED_IN"
     
     
-    let defaults = UserDefaults.standard
+//    let defaults = UserDefaults.standard
   
 //    override func viewDidAppear(_ animated: Bool) {
 //        if let alreadySignedIn = FIRAuth.auth()?.currentUser {
@@ -41,7 +41,7 @@ class LoginViewController: UIViewController {
 //                print("41 User is signed in with uid:", user.uid)
                 
 //                setDefaultCollectionQueue.sync {
-                    print("44 User is signed in with uid:", user.uid)
+//                    print("44 User is signed in with uid:", user.uid)
                     self.setCollection()
 //                }
                 
@@ -70,13 +70,6 @@ class LoginViewController: UIViewController {
     
     }
     
-    
-    
-    
-    
-    
-    
-
 
     
     // MARK: Outlets
@@ -100,6 +93,8 @@ class LoginViewController: UIViewController {
 
                      if let collectionRefString = snapshot.value as? String {
                         print("  Collection ID is \(collectionRefString)")
+                        COLLECTION_ID = collectionRefString
+
                         
                         let defaults = UserDefaults.standard
                         defaults.set(collectionRefString, forKey: "CollectionIdRef")

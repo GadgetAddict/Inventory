@@ -26,7 +26,6 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
     
     lazy var itemIndexPath: NSIndexPath? = nil
     var selectedItem: Item?
-    var collectionID: String!
     
     
  
@@ -36,19 +35,18 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
         
         
 print("ITEM FEED VIEW DID LOAD")
-        let defaults = UserDefaults.standard
+          print("Load Collection \(COLLECTION_ID!)")
+        self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items")
+
+//        let defaults = UserDefaults.standard
         
-        if (defaults.object(forKey: "CollectionIdRef") != nil) {
-            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                self.collectionID = collectionId
-                self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(collectionId)/inventory/items")
-                print("Load Collection REF: \(self.REF_ITEMS)")
-                self.loadItems()
+//        if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//                self.collectionID = collectionId
+//                print("Load Collection REF: \(self.REF_ITEMS)")
+                 self.loadItems()
    
-            }
-        }
-    
-        
+      
         tableView.delegate = self
         tableView.dataSource = self
         
@@ -216,28 +214,7 @@ print("ITEM FEED VIEW DID LOAD")
                 return ItemCell()
             }
     }
-//            print("cellForRowAt: \(items.count)")
-//    
-//            let item = items[indexPath.row]
-//    
-//            if let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell") as? ItemCell {
-//    
-//                if let itemURL = item.itemImgUrl {
-//            if let img = itemFeedVC.imageCache.object(forKey: itemURL as NSString) {
-//                
-//             
-//                cell.configureCell(item: item, img: img)
-//                    }
-//                } else {
-//                cell.configureCell(item: item,  img:nil)
-//                   
-//                        }
-//                return cell
-//                
-//            } else {
-//                return ItemCell()
-//                }
-             
+
     
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         
@@ -264,18 +241,18 @@ print("ITEM FEED VIEW DID LOAD")
         
         deleteAction.backgroundColor = UIColor.red
         
-                    let addToBoxAction = UITableViewRowAction(style: UITableViewRowActionStyle.normal, title: "\u{1f4e6}\n Box", handler: { (action: UITableViewRowAction, indexPath: IndexPath) -> Void in
-                        let boxMenu = UIAlertController(title: nil, message: "Add Item to Box", preferredStyle: UIAlertControllerStyle.actionSheet)
-                        let ScanAction = UIAlertAction(title: "Scan QR", style: .default, handler: self.scanForBox)
-                        let PickAction = UIAlertAction(title: "Choose from List", style: .default, handler: self.pickForBox)
-                        let CancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: self.cancelDeleteItem)
-                        boxMenu.addAction(ScanAction)
-                        boxMenu.addAction(PickAction)
-                        boxMenu.addAction(CancelAction)
-        
-                        self.present(boxMenu, animated: true, completion: nil)
-                    })
-                    addToBoxAction.backgroundColor = UIColor.brown
+        let addToBoxAction = UITableViewRowAction(style: UITableViewRowActionStyle.normal, title: "\u{1f4e6}\n Box", handler: { (action: UITableViewRowAction, indexPath: IndexPath) -> Void in
+            let boxMenu = UIAlertController(title: nil, message: "Add Item to Box", preferredStyle: UIAlertControllerStyle.actionSheet)
+            let ScanAction = UIAlertAction(title: "Scan QR", style: .default, handler: self.scanForBox)
+            let PickAction = UIAlertAction(title: "Choose from List", style: .default, handler: self.pickForBox)
+            let CancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: self.cancelDeleteItem)
+            boxMenu.addAction(ScanAction)
+            boxMenu.addAction(PickAction)
+            boxMenu.addAction(CancelAction)
+
+            self.present(boxMenu, animated: true, completion: nil)
+        })
+        addToBoxAction.backgroundColor = UIColor.brown
         
         return [addToBoxAction, deleteAction ]
         
@@ -427,9 +404,9 @@ print("ITEM FEED VIEW DID LOAD")
             let selectedBox = boxFeedViewController.boxToPass.boxKey
             if let itemToBox = boxFeedViewController.itemPassed.itemKey {
             
-                let REF_BOX = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/boxes/\(selectedBox!)/items/")
+                let REF_BOX = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes/\(selectedBox!)/items/")
                 
-                self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/items/\(itemToBox)/")
+                self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items/\(itemToBox)/")
                 
                 let boxNumDict: Dictionary<String, String> =
                     ["itemBoxNum" : selectedBox! ]

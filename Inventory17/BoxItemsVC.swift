@@ -40,15 +40,15 @@ class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetD
             self.tableView.emptyDataSetDelegate = self
             
             
-            let defaults = UserDefaults.standard
-    
-            if (defaults.object(forKey: "CollectionIdRef") != nil) {
-                print("Getting Defaults")
-    
-                if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                    self.collectionID = collectionId
-                }
-            }
+//            let defaults = UserDefaults.standard
+//    
+//            if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//                print("Getting Defaults")
+//    
+//                if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//                    COLLECTION_ID = collectionId
+//                }
+//            }
     
             loadDataFromFirebase()
     
@@ -63,7 +63,7 @@ class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetD
 
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             
-            self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/boxes/\(self.box.boxKey!)/items")
+            self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes/\(self.box.boxKey!)/items")
 //                  print("REFERENCE: \(myRef)")
        
             //         REF_STATUS.queryOrdered(byChild: "statusName").observe(.value, with: { snapshot in
@@ -295,7 +295,7 @@ class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetD
 //            print("Getting Defaults")
 //            
 //            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-//                self.collectionID = collectionId
+//                COLLECTION_ID = collectionId
 //            }
 //        }
 //        
@@ -310,7 +310,7 @@ class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetD
 //    func loadDataFromFirebase() {
 //        UIApplication.shared.isNetworkActivityIndicatorVisible = true
 //        
-//        self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/items")
+//        self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items")
 //        
 //        //         REF_STATUS.queryOrdered(byChild: "statusName").observe(.value, with: { snapshot in
 //        

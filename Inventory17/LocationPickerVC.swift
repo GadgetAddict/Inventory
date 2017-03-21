@@ -35,21 +35,21 @@ class LocationPickerVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDa
         tableView.tableFooterView = UIView()
         tableView.tableFooterView = UIView(frame: CGRect.zero)
 
- 
-        let defaults = UserDefaults.standard
-
-        if (defaults.object(forKey: "CollectionIdRef") != nil) {
-            print("Getting Defaults")
-
-            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                self.collectionID = collectionId
-            }
+// 
+//        let defaults = UserDefaults.standard
+//
+//        if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//            print("Getting Defaults")
+//
+//            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//                self.collectionID = collectionId
+//            }}
 
 
      
-        }
         
-        self.REF_LOCATION = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/locations/\(locationType.rawValue)")
+        
+        self.REF_LOCATION = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/locations/\(locationType.rawValue)")
         
         
         loadDataFromFirebase()

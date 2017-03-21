@@ -9,18 +9,26 @@
 import UIKit
 import Firebase
 
+enum SegueType {
+    case new
+    case existing
+    case qr
+}
+
+
 class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavigationControllerDelegate {
 
   
     
 
     var REF_BOXES = DataService.ds.REF_BASE
-    var collectionId: String!
     var box: Box!
-    var boxIsNew: Bool = true
+    var boxSegueType: SegueType = .new
     var boxNumber: Int?
     var boxQR:  String?
     
+    @IBOutlet weak var detailHeader: UILabel!
+    @IBOutlet weak var areaHeader: UILabel!
     @IBOutlet weak var boxTitle: UINavigationItem!
     @IBOutlet weak var boxNameLabel: UITextField!
     @IBOutlet weak var boxCategoryLabel: UILabel!
@@ -66,6 +74,8 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
     
     var boxLocationArea:String? = nil {
         didSet {
+            areaHeader.isHidden = false
+            boxLocationAreaLabel.isHidden = false
             boxLocationAreaLabel.text? = boxLocationArea!
             print("boxLocationArea was set to  \(boxLocationArea!)")
 
@@ -74,6 +84,8 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
     
     var boxLocationDetail:String? = nil {
         didSet {
+            detailHeader.isHidden = false
+            boxLocationDetailLabel.isHidden = false
             boxLocationDetailLabel.text? = boxLocationDetail!
             print("boxLocationLabel was set to  \(boxLocationDetail!)")
 
@@ -83,41 +95,39 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
     override func viewDidLoad() {
         super.viewDidLoad()
   
+        hideLocationLabels()
         
         
+        switch boxSegueType {
+        case .new:
+            boxContentsCellActive(boxIsNew: true)
+            
+        default:
+            boxContentsCellActive(boxIsNew: false)
+            
+            loadBoxData()
+
+            }
         
-        
-//        Set box contents table to be un-touchable if box is new
-        boxContentsCellActive(boxIsNew: boxIsNew)
-        
-        
-        
+   
         tableView.tableFooterView = UIView()
         tableView.tableFooterView = UIView(frame: CGRect.zero)
         
-        let defaults = UserDefaults.standard
-        
-        if (defaults.object(forKey: "CollectionIdRef") != nil) {
-            self.collectionId = defaults.string(forKey: "CollectionIdRef")
-            print("self.collectionId: \(self.collectionId)")
-            self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(collectionId!)/inventory/boxes")
+        self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes")
  
         }
-        
-        if boxIsNew == false {
-            print("LOAD PASSED BOX: \(box.boxCategory)")
-//            boxContentsCellActive(boxIsNew: false)
+    
+    func hideLocationLabels() {
+        areaHeader.isHidden = true
+        detailHeader.isHidden = true
+        boxLocationDetailLabel.isHidden = true
+        boxLocationAreaLabel.isHidden = true
 
-            loadBoxData()
-        } else {
-//            boxContentsCellActive(boxIsNew: true)
-           
-            print("BOX IS NEW/ Generate Box Number")
-          
-        }
-     }
+
+    }
 
     func boxContentsCellActive(boxIsNew: Bool){
+//        Set box contents table to be un-touchable if box is new
         BoxContentsCell.isUserInteractionEnabled = !boxIsNew
         BoxContentsCell.isHidden = boxIsNew
         
@@ -125,7 +135,6 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
     
     
     @IBAction func saveButtonTapped(_ sender: UIBarButtonItem) {
-        EZLoadingActivity.show("Saving", disableUI: true)
          checkForEmptyFields()
         
     }
@@ -195,7 +204,9 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
 
     getBoxNumbers()
 
-        let boxQrString = boxCategory! + "\(self.boxNumber)"
+        EZLoadingActivity.show("Saving", disableUI: true)
+
+//        let boxQrString = boxCategory! + "\(self.boxNumber)"
         
         
         
@@ -208,7 +219,7 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
                     "fragile": false as AnyObject,
                     "stackable" : true as AnyObject,
                     "boxCategory" : boxCategory as AnyObject,
-                    "boxQR" : boxQrString as AnyObject,
+//                    "boxQR" : boxQrString as AnyObject,
                     "boxNum" : self.boxNumber as AnyObject,
                     "location" : boxLocation as AnyObject ,
                     "location_area" : boxLocationArea  as AnyObject,
@@ -218,7 +229,7 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
 
                 ]
 
-        if self.boxIsNew == true {
+        if boxSegueType == .new {
            saveNewBoxToFirebaseData(boxDictionary: boxDict)
         } else {
             updateFirebaseData(boxDictionary: boxDict)
@@ -228,22 +239,37 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
     }
     
     func saveNewBoxToFirebaseData(boxDictionary: Dictionary<String, AnyObject>) {
-        self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(self.collectionId!)/inventory/boxes").childByAutoId()
+        self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes").childByAutoId()
         
         self.REF_BOXES.setValue(boxDictionary)
         EZLoadingActivity.hide(success: true, animated: true)
 
-        _ = navigationController?.popViewController(animated: true)
-
+        popViewController()
     }
     
     func updateFirebaseData(boxDictionary: Dictionary<String, AnyObject>) {
-        self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(collectionId!)/inventory/boxes/\(self.box.boxKey!)")
+        self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes/\(self.box.boxKey!)")
         self.REF_BOXES.updateChildValues(boxDictionary)
         EZLoadingActivity.hide(success: true, animated: true)
 
-        _ = navigationController?.popViewController(animated: true)
         
+        popViewController()
+        
+    }
+    
+    
+    
+    
+    func popViewController()  {
+        
+        switch boxSegueType {
+        case .qr:
+            _ = navigationController?.popToRootViewController(animated: true)
+        default:
+            _ = navigationController?.popViewController(animated: true)
+
+        }
+
     }
 //
 //    
@@ -343,8 +369,11 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
     
     
     @IBAction func cancelButtonPressed(_ sender: UIBarButtonItem) {
-        _ = navigationController?.popViewController(animated: true)
+      print("Do you hear me pressing Cancel")
         
+//        _ = navigationController?.popViewController(animated: true)
+
+        popViewController()
     }
     
     @IBAction func unwindToBoxDetailsCancel(_ segue:UIStoryboardSegue) {
@@ -399,17 +428,18 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
         }
     }
     
-    @IBAction func unwindFromQR(sender: UIStoryboardSegue) {
-//        if let sourceViewController = sender.source as? qrScannerVC {
-//            if let selectedBox = sourceViewController.qrData  { //passed from PickBox VC
-            
-//                boxesREF = (self.REF_BOXES.child(query.child).queryEqual(toValue: query.value))
-//                self.query = (child: "boxNum", value: selectedBox)
-
-                self.boxIsNew = false
+//    @IBAction func unwindToBoxDetailswithQRBOX(_ segue:UIStoryboardSegue) {
+//        print("Back to box from QR ")
+//        if let QrVC = segue.source as? qrScannerVC {
+//             if let selectedBox = QrVC.scannedBox  { //passed from QRVC
+//             self.box = selectedBox
+////                boxesREF = (self.REF_BOXES.child(query.child).queryEqual(toValue: query.value))
+////                self.query = (child: "boxNum", value: selectedBox)
+//
+//                self.boxIsNew = false
 //             }
-//        }
-    }
+//         }
+//    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
@@ -425,7 +455,7 @@ class BoxDetails: UITableViewController,UIImagePickerControllerDelegate , UINavi
                     boxItemsVC.box = self.box
                  
         } else {
-            if self.boxIsNew == false {
+            if self.boxSegueType == .existing {
               if let boxLocations = segue.destination as?  LocationDetailsVC {
                 let boxLocationToPass = Box(location: box.boxLocationName, area: box.boxLocationArea, detail: box.boxLocationDetail)
                 boxLocations.passedALocation = true

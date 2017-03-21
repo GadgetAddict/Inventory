@@ -19,7 +19,6 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate,DZ
     
     var selecteStatus: Status?
     var statusIndexPath: NSIndexPath? = nil
-    var collectionID: String!
     var REF_STATUS: FIRDatabaseReference!
     
     
@@ -80,15 +79,15 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate,DZ
         }
         
         
-        let defaults = UserDefaults.standard
-        
-        if (defaults.object(forKey: "CollectionIdRef") != nil) {
-            print("Getting Defaults")
-            
-            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                self.collectionID = collectionId
-            }
-        }
+//        let defaults = UserDefaults.standard
+//        
+//        if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//            print("Getting Defaults")
+//            
+//            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//                COLLECTION_ID = collectionId
+//            }
+//        }
         
         loadDataFromFirebase()
         
@@ -104,10 +103,10 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate,DZ
         
         let newStatusTrimmed = enteredText.trimmingCharacters(in: NSCharacterSet.whitespaces)
         
-        let status = ["statusName": newStatusTrimmed]
+        let status = ["statusName": newStatusTrimmed.capitalized]
         
         
-        self.REF_STATUS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/status").childByAutoId()
+        self.REF_STATUS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/status").childByAutoId()
         
         REF_STATUS.setValue(status)
         
@@ -121,7 +120,7 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate,DZ
     func loadDataFromFirebase() {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         
-        self.REF_STATUS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/status")
+        self.REF_STATUS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/status")
         
         //         REF_STATUS.queryOrdered(byChild: "statusName").observe(.value, with: { snapshot in
         
@@ -380,7 +379,7 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate,DZ
 ////            print("Getting Defaults")
 //            
 //            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-//                self.collectionID = collectionId
+//                COLLECTION_ID = collectionId
 //            }
 //        }
 //        
@@ -455,7 +454,7 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate,DZ
 //        let status = ["statusName": newStatusTrimmed]
 //
 //        
-//        let REF_STATUS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/status").childByAutoId()
+//        let REF_STATUS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/status").childByAutoId()
 //        
 //            REF_STATUS.setValue(status)
 //            
@@ -469,7 +468,7 @@ class BoxStatusTableVC: UITableViewController, UINavigationControllerDelegate,DZ
 //    func loadDataFromFirebase() {
 //         UIApplication.shared.isNetworkActivityIndicatorVisible = true
 //        
-//         self.REF_STATUS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/status")
+//         self.REF_STATUS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/status")
 //
 ////         REF_STATUS.queryOrdered(byChild: "statusName").observe(.value, with: { snapshot in
 //        

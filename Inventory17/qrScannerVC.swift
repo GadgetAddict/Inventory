@@ -8,6 +8,7 @@
 
 import UIKit
 import AVFoundation
+import Firebase
 
 class qrScannerVC: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
@@ -89,15 +90,19 @@ class qrScannerVC: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     
     @IBAction func cancelButtonTapped(_ sender: UIBarButtonItem) {
-        if let navController = self.navigationController {
-            navController.dismiss(animated: true, completion: nil)
-        }
+//        if let navController = self.navigationController {
+//            navController.dismiss(animated: true, completion: nil)
+//        }
+        navigationController!.popToRootViewController(animated: true)
+
     }
     
     
     
     
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputMetadataObjects metadataObjects: [Any]!, from connection: AVCaptureConnection!) {
+        
+        print(" IN THE captureOutput")
         
         // Check if the metadataObjects array is not nil and it contains at least one object.
         if metadataObjects == nil || metadataObjects.count == 0 {
@@ -119,17 +124,59 @@ class qrScannerVC: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
             qrCodeFrameView?.frame = barCodeObject!.bounds
             
             if metadataObj.stringValue != nil {
-                messageLabel.text = metadataObj.stringValue
+            
+                
+                let qrString = metadataObj.stringValue
+                
+                print("STRING VALUE \(qrString)")
+                
+                
+                messageLabel.text = qrString
                 captureSession?.stopRunning()
                 
-                let serialQueue = DispatchQueue(label: "com.queue.Serial")
-                    
-                    serialQueue.sync {
-                        DataService.ds.getInventoryReference()
-                    }
+                 let serialQueue = DispatchQueue(label: "com.queue.Serial")
                 
-                performSegue(withIdentifier: "unwindFromQRWithSender", sender: self)
+                   serialQueue.async {
 
+                
+                DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes/\(qrString!)").observeSingleEvent(of: .value, with: { snapshot in
+                     if let boxDict = snapshot.value as? Dictionary<String, AnyObject> {
+
+      
+                    self.scannedBox = Box(boxKey: qrString!, dictionary: boxDict)
+                        print("scannedBox Cat VALUE \(self.scannedBox.boxCategory)")
+
+                  
+                        self.performSegue(withIdentifier: "BoxDetails_SEGUE", sender: self)
+
+                    }
+                })
+
+            }
+            }
+        }
+
+        }
+    
+        override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+            //    @IBAction func unwindToBoxDetailswithQRBOX(_ segue:UIStoryboardSegue) {
+            //        print("Back to box from QR ")
+            //        if let QrVC = segue.source as? qrScannerVC {
+            //             if let selectedBox = QrVC.scannedBox  { //passed from QRVC
+            //             self.box = selectedBox
+            ////                boxesREF = (self.REF_BOXES.child(query.child).queryEqual(toValue: query.value))
+            ////                self.query = (child: "boxNum", value: selectedBox)
+            //
+            //                self.boxIsNew = false
+            //             }
+            //         }
+            //    }
+
+        if segue.identifier == "BoxDetails_SEGUE" {
+            print("Box Details from QR Segue")
+            if let boxDetailsVC = segue.destination as? BoxDetails {
+            boxDetailsVC.box = self.scannedBox
+            boxDetailsVC.boxSegueType = .qr
             }
         }
     }

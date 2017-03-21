@@ -40,29 +40,29 @@ class SettingsVC: UITableViewController {
     
     
     @IBAction func signOut_Tapped(_ sender: UIBarButtonItem) {
-        
+            COLLECTION_ID = nil
             print("LOGOUT Gesture Tapped")
         let defaults = UserDefaults.standard
         
         
-        if (defaults.object(forKey: "CollectionIdRef") != nil) {
-            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                 print("Collection ID is \(collectionId)")
-            } else {
-            print("Collection ID is nil")
-            }
-            
-        }
-        
-        
-        if (defaults.object(forKey: "CollectionName") != nil) {
-            if let CollectionName = defaults.string(forKey: "CollectionName") {
-                print("CollectionName ID is \(CollectionName)")
-            } else {
-                print("CollectionName ID is nil")
-            }
-            
-        }
+//        if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//                 print("Collection ID is \(collectionId)")
+//            } else {
+//            print("Collection ID is nil")
+//            }
+//            
+//        }
+//        
+//        
+//        if (defaults.object(forKey: "CollectionName") != nil) {
+//            if let CollectionName = defaults.string(forKey: "CollectionName") {
+//                print("CollectionName ID is \(CollectionName)")
+//            } else {
+//                print("CollectionName ID is nil")
+//            }
+//            
+//        }
 
         
 
@@ -81,11 +81,11 @@ class SettingsVC: UITableViewController {
             }
             
         
-    if (defaults.object(forKey: "CollectionIdRef") != nil) {
-    if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-    print("Collection ID is \(collectionId)")
-    }
-    }
+//    if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//    if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//    print("Collection ID is \(collectionId)")
+//    }
+//    }
 
     
     }

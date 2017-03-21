@@ -40,16 +40,17 @@ class AddItemsToBoxVC: UITableViewController {
             tableView.tableFooterView = UIView(frame: CGRect.zero)
             
             
-            let defaults = UserDefaults.standard
-            
-            if (defaults.object(forKey: "CollectionIdRef") != nil) {
-                print("Getting Defaults")
-                
-                if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                    self.collectionID = collectionId
-                }
-            }
-            
+//            let defaults = UserDefaults.standard
+//            
+//            if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//                print("Getting Defaults")
+//                
+//                if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//                    self.collectionID = collectionId
+//                }
+//            }
+//            
+
             loadDataFromFirebase()
             
             
@@ -57,9 +58,9 @@ class AddItemsToBoxVC: UITableViewController {
         }   // End ViewDidLoad
         
     func saveToFirebase(item: String, key: String) {
-        self.REF_BOX = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/boxes/\(self.box.boxKey!)/items/itemBoxNum\(key)")
+        self.REF_BOX = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes/\(self.box.boxKey!)/items/itemBoxNum\(key)")
         
-        self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/items/\(key)/")
+        self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items/\(key)/")
         
         let boxNumDict: Dictionary<String, String> =
             ["itemBoxNum" : self.box.boxKey! ]
@@ -81,7 +82,7 @@ class AddItemsToBoxVC: UITableViewController {
             UIApplication.shared.isNetworkActivityIndicatorVisible = true
             
   
-            self.REF_BOX = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/items")
+            self.REF_BOX = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items")
             print("self.box.boxCategory: \(self.box.boxCategory!)")
 
             self.REF_BOX.queryEqual(toValue: self.box.boxCategory! ).observe(.value, with: { snapshot in

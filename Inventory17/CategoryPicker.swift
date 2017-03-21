@@ -22,7 +22,6 @@ class CategoryPicker: UITableViewController {
     var categoryType = CategoryType.category
     var categorySelection: CategorySelection = .item
     var categoryIndexPath: NSIndexPath? = nil
-    var collectionID: String!
     
     
     
@@ -39,17 +38,17 @@ class CategoryPicker: UITableViewController {
         tableView.tableFooterView = UIView(frame: CGRect.zero)
     
         
-        let defaults = UserDefaults.standard
+//        let defaults = UserDefaults.standard
+//        
+//        if (defaults.object(forKey: "CollectionIdRef") != nil) {
+//            print("Category PIcker: Getting Defaults")
+//            
+//            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+//                self.collectionID = collectionId
+//            }
+//        }
         
-        if (defaults.object(forKey: "CollectionIdRef") != nil) {
-            print("Category PIcker: Getting Defaults")
-            
-            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
-                self.collectionID = collectionId
-            }
-        }
-        
-        self.REF_CATEGORY = DataService.ds.REF_BASE.child("/collections/\(self.collectionID!)/inventory/categories/\(categoryType.rawValue)")
+        self.REF_CATEGORY = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/categories/\(categoryType.rawValue)")
         
         loadDataFromFirebase()
         
