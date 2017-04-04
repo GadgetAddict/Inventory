@@ -26,7 +26,7 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
 //        self.showAlertForRow(row: tableView.indexPath(for: cell)!.row)
     }
 
-//    lazy var createStartingNumber: Bool = false
+    var FbHandle: UInt!   // set to remove observer when viewDisappears
     var REF_BOXES: FIRDatabaseReference!
     var boxes = [Box]()
     lazy var itemIndexPath: NSIndexPath? = nil
@@ -52,28 +52,34 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
             tableView.tableFooterView = UIView(frame: CGRect.zero)
              
        
-              loadBoxes()
+            
     }
     
-   
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+                loadBoxes()
+    }
  
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        print("BoxFeed: removeAllObservers")
+
+        self.REF_BOXES.removeAllObservers()
+    }
+    
     func gotoSearchPage()  {
         print("Tapped")
     }
  
     func loadBoxes(){
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        print("loadBoxes")
 
-//        let defaults = UserDefaults.standard
-//        
-//        if (defaults.object(forKey: "CollectionIdRef") != nil) {
-//            
-//            if let collectionId = defaults.string(forKey: "CollectionIdRef") {
+            UIApplication.shared.isNetworkActivityIndicatorVisible = true
+ 
         
-                    self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes")
+       self.REF_BOXES = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes")
                 print("Load Collection REF: \(self.REF_BOXES)")
                 
-        
         
         
         
@@ -81,6 +87,7 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
         switch boxLoadType {
         case .all:
       
+//            MARK: Create UIBarButtonItems
             let addBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 22, height: 22))
             addBtn.setImage(UIImage(named: "Plus 2 Math_50"), for: UIControlState.normal)
             let newACtion = "newBox"
@@ -102,7 +109,7 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
         case .query:
             
               boxesREF = (self.REF_BOXES.child(query.child).queryEqual(toValue: query.value))
-           
+              
             print("Show only query boxes")
             
         case .category:
@@ -113,28 +120,27 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
                 self.title = "\(category.capitalized) Boxes"
 
              boxesREF = REF_BOXES.queryOrdered(byChild: "boxCategory").queryEqual(toValue: category)
-                print("Show Query: \(boxesREF)")
-
+ 
             }
  
         }
+    
  
- 
-        boxesREF?.observe(.value, with: {(snapshot)  in
+        boxesREF!.observe(.value, with: {(snapshot)  in
             self.boxes = [] // THIS IS THE NEW LINE
 
             
             if let snapshot = snapshot.children.allObjects as? [FIRDataSnapshot] {
                 for snap in snapshot {
-                    print("SNAP: \(snap)")
+                    print("Box Feed Snap: \(snap)")
                     if let boxDict = snap.value as? Dictionary<String, AnyObject> {
                         let key = snap.key
-                        print("Box Snap Key: \(snap.key)")
-
+ 
                         let countItemsREF = self.REF_BOXES.child(key).child("items")
-                         countItemsREF.observeSingleEvent(of: .value, with: { itemCountSnapshot in
-                             let theCount = itemCountSnapshot.childrenCount
-                            print("Box theCount: \(theCount)")
+                         countItemsREF.observe(.value, with: { (itemCountSnapshot) in
+                        
+                            let theCount = itemCountSnapshot.childrenCount
+                            print("BoxFeed-Items in box: \(theCount)")
 
                         let box = Box(boxKey: key, dictionary: boxDict)
                         box.boxItemCount = Int(theCount)
@@ -253,19 +259,20 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
         override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
             switch boxLoadType {
             case .all:
-                print("selected  \(boxes[indexPath.row].boxCategory)")
+                print("You Tapped  \(boxes[indexPath.row].boxCategory!)")
+                self.REF_BOXES.removeAllObservers()
+                print("BoxFeed: boxLoadType ALL    Did  Select Box -> removeAllObservers")
 
                 self.boxToPass = boxes[indexPath.row]
                 self.performSegue(withIdentifier: "existingBox_SEGUE", sender: self)
 
             case .category:
-                print("selected  \(boxes[indexPath.row])")
-                
-//                if let cell = tableView.cellForRow(at: indexPath) {
-//                    if cell.isSelected {
-//                        cell.accessoryType = .checkmark
-//                    }
+                self.REF_BOXES.removeAllObservers()
+                print("BoxFeed: boxLoadType CATEGORY   Did Select Box -> removeAllObservers")
+
                     self.boxToPass = boxes[indexPath.row]
+                     print("You Chose Box-key:  \(self.boxToPass.boxKey!)")
+
                     self.performSegue(withIdentifier: "unwindToItemsFromBoxSel", sender: self)
 
                 
@@ -375,10 +382,10 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
                 self.REF_BOXES.child(boxKey!).removeValue()
                 itemIndexPath = nil
                 tableView.endUpdates()
-                
+
             }
+
         }
-        
     
         
         func cancelDeleteItem(alertAction: UIAlertAction!) {
@@ -445,7 +452,7 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
                     if segue.identifier == "existingBox_SEGUE" {
                         print("existing Box _SEGUE ")
                 
-                    destination.box = boxToPass
+                    destination.box = self.boxToPass
                     destination.boxSegueType = .existing
                         //                    print("Item to Pass is \(itemToPass.itemName)")
                         

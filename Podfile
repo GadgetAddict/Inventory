@@ -15,4 +15,7 @@ pod 'Firebase/Storage'
 pod 'FBSDKLoginKit'
 pod 'FBSDKLoginKit'
 pod 'DZNEmptyDataSet'
+pod 'QRCode'
+pod 'ExpandingMenu'
+
 end
