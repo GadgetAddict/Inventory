@@ -13,7 +13,7 @@ import DZNEmptyDataSet
 class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
   
     
-  
+  //
         var items = [Item]()
         var box: Box!
 //        var selectedItems = [Item]()
