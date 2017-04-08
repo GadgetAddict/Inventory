@@ -17,7 +17,7 @@ enum ItemType {
     case boxItem
 }
 
-class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINavigationControllerDelegate, UITextFieldDelegate {
+class ItemDetailsVC: UITableViewController,UIImagePickerControllerDelegate , UINavigationControllerDelegate, UITextFieldDelegate {
     
     var itemType: ItemType = .new
     var passedItem: Item?
@@ -198,7 +198,6 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
     
     let picker = UIImagePickerController()
     @IBOutlet weak var myImageView: UIImageView!
-    
     @IBOutlet weak var blurredImage: UIImageView!
     
     func photoFromLibrary() {
@@ -222,8 +221,6 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
         }
     }
     
-    
-
     func noCamera(){
         let alertVC = UIAlertController(
             title: "No Camera",
@@ -254,6 +251,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
         dismiss(animated:true, completion: nil) //5
     }
     
+    
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
     }
@@ -261,14 +259,9 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
     
     //    MARK: Keyboard Text Delegate
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        
         self.view.endEditing(true)
-        
         return true
-        
     }
-    
-    
     
     
     func createNumPadToolbar(){
@@ -276,7 +269,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
         let toolbar:UIToolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: 30))
         //create left side empty space so that done button set on right side
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let doneBtn: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(ItemDetails.doneButtonAction))
+        let doneBtn: UIBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(ItemDetailsVC.doneButtonAction))
         
         //array of BarButtonItems
         var arr = [UIBarButtonItem]()
@@ -467,8 +460,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
             return
         }
         
-   
-        
+    
         self.checkForImage()
         
     }
@@ -488,19 +480,10 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
             
             DataService.ds.REF_ITEM_IMAGES.child(imgUid).put(imgData, metadata: metadata) { (metadata, error) in
                 if error != nil {
-                    print("JESS: Unable to upload image to Firebasee storage")
-                    
-//                    if self.itemType == .new {
-//                    self.postToFirebase(imgUrl: "gs://inventory-694e9.appspot.com/placeholder.png")
-//                    
-//                    } else {
-//                    self.updateFirebaseData(imgUrl: "gs://inventory-694e9.appspot.com/placeholder.png")
-//                    }
-//
-
+                    print("MK: Unable to upload image to Firebasee storage")
+  
                 } else {
                     
-                  
                     var url: String!
                     
                     switch self.imageChanged {
@@ -526,7 +509,6 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
                             print("MK: Goto self.udpateFB")
 
                         self.updateFirebaseData(imgUrl: url)
-                            
                            
                     }
                 }
@@ -539,6 +521,13 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
     func postToFirebase(imgUrl: String?) {
         print("I'm in postToFirebase")
 
+        var qtyStr: String
+        
+        if let qty = qtyValue {
+            qtyStr = "\(qty)"
+        } else {
+            qtyStr = "1"
+        }
         
         let newItem = Item(itemName: (itemNameField.text?.capitalized)!, itemCat: (itemCategory.text?.capitalized)!, itemSubcat: (itemSubCategory.text?.capitalized)!, itemColor: itemColor.text?.capitalized)
         
@@ -552,27 +541,25 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
             "imageUrl": imgUrl as AnyObject,
             "itemCategory" : newItem.itemCategory as AnyObject,
             "itemSubcategory" : newItem.itemSubcategory as AnyObject,
-            "itemQty" : itemQty.text! as AnyObject ,
+            "itemQty" : qtyStr as AnyObject ,
             "itemFragile" : fragileStatus as AnyObject,
             "itemColor": newItem.itemColor as AnyObject,
             "itemIsBoxed" : false as AnyObject
         ]
         
                 self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items").childByAutoId()
-        print("REF is \(self.REF_ITEMS)")
 
                 self.REF_ITEMS.setValue(itemDict)
 
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
-
-        //                self.dismiss(animated: true, completion: {})
+        let _ = EZLoadingActivity.hide(success: true, animated: true)
         popViewController()
-        EZLoadingActivity.hide(success: true, animated: true )
-            }
+    
+    }
     
  
     func updateFirebaseData(imgUrl: String?) {
-//     self.REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(collectionId!)/inventory/items/\(self.passedItem!.itemKey!)")
+ 
         
         if let boxDetailsToSave = self.boxSelectedForItem{
 //            saveBoxDetails()
@@ -593,7 +580,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
             ])
         
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        EZLoadingActivity.hide(success: true, animated: true)
+        let _ = EZLoadingActivity.hide(success: true, animated: true)
         popViewController()
 
     }
@@ -602,6 +589,7 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
         _ = navigationController?.popViewController(animated: true)
 
     }
+    
     /*
     func saveBoxDetails() {
 //        Item was added to box - save details to Item and Box in Firebase
@@ -661,10 +649,8 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
                     self.itemSubCategory.text = subcat
                 } else {
                     self.itemSubCategory.text = ""
-            }
-               print("Unwound with category \(category.category)")
-                print("Unwound with subcategory \(category.subcategory)")
-            }
+                }
+             }
         }
     }
     
@@ -705,8 +691,8 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
         }
         
         let item1 = ExpandingMenuItem(size: menuButtonSize, title: nil, image: UIImage(named: "qrBlue")!, highlightedImage: UIImage(named: "qrBlue")!, backgroundImage: UIImage(named: "qrBlue"), backgroundHighlightedImage: UIImage(named: "qrBlue")) { () -> Void in
-//            showAlert("qr")
-        }
+            
+            }
         
         let item2 = ExpandingMenuItem(size: menuButtonSize, title: nil, image: UIImage(named: "cameraBlue")!, highlightedImage: UIImage(named: "cameraBlue")!, backgroundImage: UIImage(named: "cameraBlue"), backgroundHighlightedImage: UIImage(named: "cameraBlue")) { () -> Void in
 //            showAlert("image")
@@ -770,6 +756,9 @@ class ItemDetails: UITableViewController,UIImagePickerControllerDelegate , UINav
 //            }}
 //        print("Finished in Unwind back to iTemFeed")
         
+    //    MARK: Change Root View Controller -app delegate
+    
+    
     
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

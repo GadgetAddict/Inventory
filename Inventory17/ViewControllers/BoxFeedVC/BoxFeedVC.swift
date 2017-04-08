@@ -88,20 +88,21 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
         case .all:
             
             //            MARK: Create UIBarButtonItems
-            let addBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 22, height: 22))
-            addBtn.setImage(UIImage(named: "Plus 2 Math_50"), for: UIControlState.normal)
-            let newACtion = "newBox"
-            addBtn.addTarget(self, action: Selector(newACtion), for:  UIControlEvents.touchUpInside)
-            let rightItem = UIBarButtonItem(customView: addBtn)
-            self.navigationItem.rightBarButtonItem = rightItem
-            
-            
-            let searchBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 22, height: 22))
-            searchBtn.setImage(UIImage(named: "Search_50"), for: UIControlState.normal)
-            let searchAction = "searchTapped"
-            searchBtn.addTarget(self, action: Selector(searchAction), for:  UIControlEvents.touchUpInside)
-            let leftItem = UIBarButtonItem(customView: searchBtn)
-            self.navigationItem.leftBarButtonItem = leftItem
+//            let addBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 22, height: 22))
+//            addBtn.setImage(UIImage(named: "Plus 2 Math_60"), for: UIControlState.normal)
+//            let newACtion = "newBox"
+//            addBtn.addTarget(self, action: Selector(newACtion), for:  UIControlEvents.touchUpInside)
+//            let rightItem = UIBarButtonItem(customView: addBtn)
+//            self.navigationItem.rightBarButtonItem = rightItem
+//            
+//            
+//            let searchBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 22, height: 22))
+//            searchBtn.setImage(UIImage(named: "Search_50"), for: UIControlState.normal)
+//            let searchAction = "searchTapped"
+//            searchBtn.addTarget(self, action: Selector(searchAction), for:  UIControlEvents.touchUpInside)
+//            let leftItem = UIBarButtonItem(customView: searchBtn)
+//            self.navigationItem.leftBarButtonItem = leftItem
+
             boxesREF = self.REF_BOXES
             
             print("Show all boxes")
@@ -167,8 +168,8 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
     
     func searchTapped() {
         print("boxQR_SEGUE BUTTON TAPPED ")
-        performSegue(withIdentifier: "boxQR_SEGUE", sender: self)
-        
+//        performSegue(withIdentifier: "boxQR_SEGUE", sender: self)
+//        instantiateViewController
         
         //        let viewController:UIViewController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "qrScanner_navController") as UIViewController
         //        // .instantiatViewControllerWithIdentifier() returns AnyObject! this must be downcast to utilize it
@@ -443,11 +444,7 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print("boxFeed prepareForSegue ")
         
-        
-        
-        
-        
-        
+
         if let destination = segue.destination as? BoxDetails {
             if segue.identifier == "existingBox_SEGUE" {
                 print("existing Box _SEGUE ")
@@ -466,6 +463,15 @@ class BoxFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpty
             
             
         }
+    }
+    
+//    MARK: Change Root View Controller -app delegate
+    @IBAction func switchButtonPresed(sender: AnyObject) {
+        
+        // switch root view controllers in AppDelegate
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.switchViewControllers(storyBoardID: "asdf")
+        
     }
     
 }//itemFeedVC

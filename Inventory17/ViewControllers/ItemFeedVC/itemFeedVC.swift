@@ -29,6 +29,18 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
     
     var itemIsBoxed: Bool!
     
+    @IBAction func addNewButton(_ sender: UIBarButtonItem) {
+        performSegue(withIdentifier: "newItem_SEGUE", sender: nil)
+
+    }
+    
+    @IBAction func searchButton(_ sender: UIBarButtonItem) {
+                   print("in searchTapped")
+    performSegue(withIdentifier: "searchItem_SEGUE", sender: nil)
+            
+       
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         print("ItemFeed: removeAllObservers")
@@ -45,6 +57,8 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
     override func viewDidLoad() {
      super.viewDidLoad()
    
+        
+        
         // Setup the Search Controller
         searchController.searchResultsUpdater = self
         searchController.searchBar.delegate = self
@@ -75,45 +89,37 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
 //            self.loadItems()
 //        }
    
-        let addBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 22, height: 22))
-        addBtn.setImage(UIImage(named: "Plus 2 Math_50"), for: UIControlState.normal)
-        let newACtion = "newItem"
-        addBtn.addTarget(self, action: Selector(newACtion), for:  UIControlEvents.touchUpInside)
-        let rightItem = UIBarButtonItem(customView: addBtn)
-        self.navigationItem.rightBarButtonItem = rightItem
-        
-        
-        let searchBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 22, height: 22))
-        searchBtn.setImage(UIImage(named: "Search_50"), for: UIControlState.normal)
-        let searchAction = "searchTapped"
-        searchBtn.addTarget(self, action: Selector(searchAction), for:  UIControlEvents.touchUpInside)
-        let leftItem = UIBarButtonItem(customView: searchBtn)
-        self.navigationItem.leftBarButtonItem = leftItem
-
-    }
+//        let addBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+//        addBtn.setImage(UIImage(named: "Plus 2 Math_60"), for: UIControlState.normal)
+//        let newACtion = "newItem"
+//        addBtn.addTarget(self, action: Selector(newACtion), for:  UIControlEvents.touchUpInside)
+//        let rightItem = UIBarButtonItem(customView: addBtn)
+//        self.navigationItem.rightBarButtonItem = rightItem
+//        
+//        
+//        let searchBtn = UIButton(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+//        searchBtn.setImage(UIImage(named: "Search_50"), for: UIControlState.normal)
+//        let searchAction = "searchTapped"
+//        searchBtn.addTarget(self, action: Selector(searchAction), for:  UIControlEvents.touchUpInside)
+//        let leftItem = UIBarButtonItem(customView: searchBtn)
+//        self.navigationItem.leftBarButtonItem = leftItem
+//
+ }
     
-    func newItem()  {
-        performSegue(withIdentifier: "newItem_SEGUE", sender: nil)
-
-    }
+ 
     
-    func searchTapped()  {
-        print("in searchTapped")
-//        performSegue(withIdentifier: "searchItem_SEGUE", sender: nil)
-        
-    }
+
     
     func loadItems(){
         let _ = EZLoadingActivity.show("Loading Items", disableUI: true)
 
         print("in Function loadItems")
         
-//        DispatchQueue.main.async {
-      
-        
-//        let queue1 = DispatchQueue(label: "com.michael.loadFB", qos: DispatchQoS.userInitiated)
 
-//        queue1.async {
+        
+     let queue1 = DispatchQueue(label: "com.michael.loadFB", qos: DispatchQoS.userInitiated)
+
+      // queue1.async {
         
         
         self.REF_ITEMS?.observe(.value, with: {(snapshot)  in
@@ -130,10 +136,14 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
                     }
                 }
             }
-            let _ = EZLoadingActivity.hide()
-            self.tableView.reloadData()
+          //  DispatchQueue.main.async {
+                let _ = EZLoadingActivity.hide()
+                self.tableView.reloadData()
+           // }
         })
-// }
+        
+       
+        //}
     }
     
     
@@ -247,7 +257,10 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
         return items.count
     }
     
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt
+        indexPath: IndexPath) -> UITableViewCell {
+        print("Start")
+        let start = Date()
         if let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath) as? ItemCell {
         let item: Item
         if searchController.isActive && searchController.searchBar.text != "" {
@@ -262,11 +275,14 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
         }
 
         cell.configureCell(item: item, img: img)
+  let end = Date()
+            print("Elapsed Time: \(end.timeIntervalSince(start))")
 
         return cell
         } else {
         return ItemCell()
         }
+  
     }
 
  
@@ -482,7 +498,7 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
                     if segue.identifier == "existingItem_SEGUE" {
                         print("existingItem_SEGUE ")
     
-                        if let destination = segue.destination as? ItemDetails {
+                        if let destination = segue.destination as? ItemDetailsVC {
                             destination.passedItem = itemToPass
                             destination.itemType = .existing
                             print("Item to Pass is \(itemToPass.itemName)")
@@ -507,7 +523,7 @@ class itemFeedVC: UITableViewController ,UINavigationControllerDelegate, DZNEmpt
             
                 let REF_BOX = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes/\(boxKey!)/items/\(itemKey!)")
                 
-                let REF_ITEM = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items/\(itemKey!)/")
+                let REF_ITEM = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items/\(itemKey!)/box")
                 
                 let boxSelectedDict: Dictionary<String, AnyObject> =
                     ["itemBoxKey" : boxKey! as AnyObject,

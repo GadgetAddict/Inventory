@@ -42,7 +42,10 @@ class ItemCell: UITableViewCell, UINavigationControllerDelegate {
    
     func configureCell(item: Item, img: UIImage?) {
         self.item = item
- 
+     let getImage_QUEUE = DispatchQueue(label: "com.michael.getImagequeue", qos: DispatchQoS.userInteractive     )
+//        
+//
+        
         if let qty = item.itemQty {
             self.qty.text = "\(qty)"
         } else {
@@ -69,20 +72,11 @@ class ItemCell: UITableViewCell, UINavigationControllerDelegate {
             self.imgFragile.isHidden = false
             
         }
-
-        let getImage_QUEUE = DispatchQueue(label: "com.michael.getImagequeue", qos: DispatchQoS.userInteractive     )
-        
-//     getImage_QUEUE.sync {
-        
-        
-        if img != nil {
-            self.imageThumb.image = img
- 
-        } else {
- 
-             getImage_QUEUE.async {
- 
-                if let URL = item.itemImgUrl {
+//        if img != nil {
+//            self.imageThumb.image = img
+//            } else {
+//       getImage_QUEUE.async {
+        if let URL = item.itemImgUrl {
             let ref = FIRStorage.storage().reference(forURL: URL)
             ref.data(withMaxSize: 2 * 1024 * 1024, completion: { (data, error) in
                 if error != nil {
@@ -90,17 +84,21 @@ class ItemCell: UITableViewCell, UINavigationControllerDelegate {
                 } else {
                     print("MK: Image downloaded from Firebase storage")
                     if let imgData = data {
+
+    
                         if let img = UIImage(data: imgData) {
+                          DispatchQueue.main.async {
                             self.imageThumb.image = img
                             itemFeedVC.imageCache.setObject(img, forKey: URL as NSString)
+                            }
+                            }
                         }
                     }
-                }
-            })
-            }}
-        }
-        
-        
+                })
+            }
+//        }
+    
+ 
     }//ConfigureCell
     
     

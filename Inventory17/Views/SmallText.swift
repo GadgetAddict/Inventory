@@ -8,23 +8,43 @@
 
 import UIKit
 
-class SmallText: UILabel {
-    
-    override func awakeFromNib() {
+
+
+    class SettingsTextStyle: UILabel {
         
-//        let size:CGFloat = 35.0 // 35.0 chosen arbitrarily
-        let countLabel = UILabel()
-        countLabel.text = "Items"
-       
-        countLabel.textAlignment = .center
-        countLabel.font = UIFont.systemFont(ofSize: 10.0)
-         countLabel.layer.backgroundColor = UIColor.clear.cgColor
-        countLabel.layer.borderColor = UIColor.green.cgColor
+        override func awakeFromNib() {
+
+        textColor = UIColor.darkGray
+        font = UIFont(name: "PingFang SC Light", size: 24)
         
-//        countLabel.center = CGPointMake(200.0, 200.0)
+        
+        }
+
         
     }
-        
+
+
+
+//class SmallText: UILabel {
+//
+//    override func awakeFromNib() {
+//
+////        let size:CGFloat = 35.0 // 35.0 chosen arbitrarily
+//        let countLabel = UILabel()
+//        countLabel.text = "Items"
+//
+//        countLabel.textAlignment = .center
+//        countLabel.font = UIFont.systemFont(ofSize: 10.0)
+//         countLabel.layer.backgroundColor = UIColor.clear.cgColor
+//        countLabel.layer.borderColor = UIColor.green.cgColor
+//
+////        countLabel.center = CGPointMake(200.0, 200.0)
+//
+//    }
+//
+
+
+
 //        let size:CGFloat = 35.0 // 35.0 chosen arbitrarily
 //        
 //        let countLabel = UILabel()
@@ -41,5 +61,4 @@ class SmallText: UILabel {
 //        countLabel.center = CGPointMake(200.0, 200.0)
 //        
 //        self.view.addSubview(countLabel)
- 
-}
+

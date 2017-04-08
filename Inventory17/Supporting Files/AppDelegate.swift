@@ -31,6 +31,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
     
+    func switchViewControllers(storyBoardID: String) {
+        
+        // switch root view controllers
+        let storyboard = UIStoryboard.init(name: "Main", bundle: nil)
+        let nav = storyboard.instantiateViewController(withIdentifier: storyBoardID)
+        
+        self.window?.rootViewController = nav
+        
+    }
+    
   
     
 }

@@ -12,8 +12,10 @@ import DZNEmptyDataSet
 
 class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetDelegate {
   
+//    MARK: Refactor 
+ 
     
-  //
+    
         var items = [Item]()
         var box: Box!
 //        var selectedItems = [Item]()
@@ -73,7 +75,7 @@ class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetD
                 self.items = []
                 if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot] {
                     for snap in snapshots {
-                        print("ItemSnap: \(snap)")
+                        print("Box-Contents-Snap: \(snap)")
     
                         if let itemDict = snap.value as? Dictionary<String, AnyObject> {
                             let key = snap.key
@@ -225,15 +227,16 @@ class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetD
             let itemKey = itemObject.itemKey
             let REF_ITEMS = DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/items/\(itemKey!)")
 
-            
-            
-            let itemBoxDetails: Dictionary<String, AnyObject> = [
-                "itemBoxKey" :  "\(self.box.boxKey)" as AnyObject,
-                "itemBoxNumber" : "\(self.box.boxNumber)" as AnyObject,
-                "itemIsBoxed" : true as AnyObject]
-               
-            REF_ITEMS.updateChildValues(itemBoxDetails)
+     
 
+            
+//            let itemBoxDetails: Dictionary<String, AnyObject> = [
+//                "itemBoxKey" :  "\(self.box.boxKey)" as AnyObject,
+//                "itemBoxNumber" : "\(self.box.boxNumber)" as AnyObject,
+//                "itemIsBoxed" : true as AnyObject]
+            
+//            REF_ITEMS.setValue(nil)
+//REF_ITEMS.removeValue()
             
             
             
@@ -292,3 +295,21 @@ class BoxItemsVC: UITableViewController, DZNEmptyDataSetSource, DZNEmptyDataSetD
     
     
 }  //end of class
+
+//  delete item and storage
+//// Remove the post from the DB
+//ref.child("posts").child(selectedPost.postID).removeValue { error in
+//    if error != nil {
+//        print("error \(error)")
+//    }
+//}
+//// Remove the image from storage
+//let imageRef = storage.child("posts").child(uid).child("\(selectedPost.postID).jpg")
+//imageRef.delete { error in
+//    if let error = error {
+//        // Uh-oh, an error occurred!
+//    } else {
+//        // File deleted successfully
+//    }
+//}
+//}

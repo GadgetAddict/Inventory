@@ -10,7 +10,19 @@ import UIKit
 import AVFoundation
 import Firebase
 
+enum qrScanType {
+    case searchItem     //from itemFeed - scan Item QR for details
+    case searchBox      //from boxFeed - scan Box QR for details
+    case updateItemQR   //from itemDetails - set custom qr
+    case addToBox       //from itemFeed or ItemDetails - load existing box          but warning if category mismatch
+    
+}
+
+
+
 class qrScannerVC: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
+    
+    let REF =  DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/")
     
     @IBOutlet weak var messageLabel:UILabel!
     var qrData: String!
@@ -24,6 +36,8 @@ class qrScannerVC: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
     
     let supportedBarCodes = [AVMetadataObjectTypeQRCode]
 
+    
+    
     
 //    let supportedBarCodes = [AVMetadataObjectTypeQRCode, AVMetadataObjectTypeCode128Code, AVMetadataObjectTypeCode39Code, AVMetadataObjectTypeCode93Code, AVMetadataObjectTypeUPCECode, AVMetadataObjectTypePDF417Code, AVMetadataObjectTypeEAN13Code, AVMetadataObjectTypeAztecCode]
     
@@ -138,8 +152,13 @@ class qrScannerVC: UIViewController, AVCaptureMetadataOutputObjectsDelegate {
                 
                    serialQueue.async {
 
-                
-                DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes/\(qrString!)").observeSingleEvent(of: .value, with: { snapshot in
+//           DataService.ds.REF_BASE.child("/collections/\(COLLECTION_ID!)/inventory/boxes/\(qrString!)").
+                   
+ 
+                let boxRef = self.REF.child("boxes/\(qrString!)")
+                    
+                    
+        boxRef.observeSingleEvent(of: .value, with: { snapshot in
                      if let boxDict = snapshot.value as? Dictionary<String, AnyObject> {
 
       
